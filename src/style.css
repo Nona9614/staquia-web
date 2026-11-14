@@ -1,0 +1,1531 @@
+/* ==========================================================================
+   Staquia documentation styles
+   One global stylesheet, inlined into index.html at build time.
+   ========================================================================== */
+
+/* Fonts ------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Montserrat";
+  font-weight: 400;
+  font-style: normal;
+  src: url("./assets/fonts/Montserrat-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+/* Custom properties --------------------------------------------------------
+ *
+ * --palette-<hue>[-<step>]                Raw colors, the same in both themes (see the end of the file).
+ * --color-<role>                          Themed colors: set once per theme below, used by the rules.
+ * --color-<component>-<part>[-<state>]    Themed colors of one component.
+ * --color-code-<token>                    Colors of the code samples (VS Code Dark+, the same in both themes).
+ * --shadow-<component>                    Themed shadows.
+ * --size-<thing>                          Layout sizes.
+ * --font-size-<role>, --line-height-<role> Typography.
+ * --box-*                                 Local to a row of boxes, set by its variant.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  font-family: "Montserrat", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-background);
+
+  --size-header-height: 60px;
+  /* The side space of a page: its text, the divider and the footer all start at it */
+  --size-article-inset: 2rem;
+  --size-nav-width: 230px;
+  /* The nav icons and the logo above them */
+  --size-nav-icon: 2.2rem;
+  /* The lines between the header, the navigator and the content */
+  --size-divider: 1px;
+  /* Buttons of the header */
+  --size-header-button: 2.25rem;
+  --size-code-max-height: 510px;
+  --size-input-box: 5rem;
+  --font-size-text: 1.5rem;
+  --font-size-title: 2.5rem;
+  --line-height-text: 2.3rem;
+}
+
+/* Light theme */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Text and surfaces */
+    --color-text: var(--palette-charcoal-light);
+    --color-text-muted: var(--palette-grey-dark);
+    --color-text-azure: var(--palette-azure);
+    --color-text-teal: var(--palette-teal);
+    --color-text-gold: var(--palette-gold-darker);
+    --color-background: var(--palette-grey-lighter);
+    --color-border: var(--palette-grey-light);
+    --color-shadow: var(--palette-grey);
+    /* Errors and "bad" values: the ichor red, softer than a pure red */
+    --color-error: var(--palette-ichor-dark);
+    --color-warning: var(--palette-gold-darker);
+    /* Inline code: on a subtle chip, so it is recognized by its shape too (and never confused with Z) */
+    --color-code-inline: hsl(20, 80%, 36%);
+    --color-code-inline-background: rgb(0 0 0 / 6%);
+    /* Links and buttons */
+    --color-link: #0f8a75;
+    --color-link-visited: #0a5c4e;
+    --color-button: #0f8a75;
+    --color-button-hover: #4ca193;
+    --color-button-text: whitesmoke;
+    --color-api-button: var(--palette-azure);
+    --color-api-button-hover: var(--palette-azure-light);
+    --color-doc-button: var(--palette-teal);
+    --color-doc-button-hover: var(--palette-teal-light);
+    --color-nav-selected: #0e7d6a;
+    --color-nav-pill: rgb(15 138 117 / 14%);
+    --color-nav-pill-hover: rgb(15 138 117 / 8%);
+    /* Segments of a position */
+    /* N and Z: violet and orange stay apart for red-green color blindness too */
+    --color-segment-n: var(--palette-violet);
+    --color-segment-z: var(--palette-orange-darker);
+    /* Inputs of the Setup App */
+    --color-input-background: white;
+    --color-input-text: var(--palette-charcoal);
+    --color-input-border: var(--palette-grey-dark);
+    --color-input-label: var(--palette-grey-dark);
+    /* Letter boxes: light boxes on the light theme */
+    --color-box-background: hsl(0deg 0% 95% / 80%);
+    --color-box-text: var(--palette-charcoal);
+    --color-box-accent: var(--palette-teal);
+    --color-box-border: var(--palette-grey);
+    --color-box-symbol: var(--palette-grey-darker);
+    --shadow-box: 4px 5px 10px 2px var(--palette-grey);
+    /* Notes */
+    --color-note-border: rgba(100, 180, 200, 0.8);
+    --color-note-background: rgba(100, 180, 200, 0.2);
+    --color-note-title: var(--palette-azure-dark);
+    --color-note-code: var(--palette-azure);
+    --color-note-marker: var(--palette-azure);
+  }
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Text and surfaces */
+    --color-text: var(--palette-grey-light);
+    --color-text-muted: var(--palette-grey);
+    --color-text-azure: var(--palette-azure-light);
+    --color-text-teal: var(--palette-teal-light);
+    --color-text-gold: var(--palette-gold);
+    --color-background: var(--palette-charcoal);
+    --color-border: var(--palette-grey);
+    --color-shadow: var(--palette-charcoal-darker);
+    /* Errors and "bad" values: the ichor red, softer than a pure red */
+    --color-error: var(--palette-ichor-light);
+    --color-warning: var(--palette-gold-dark);
+    /* Inline code: on a subtle chip, so it is recognized by its shape too (and never confused with Z) */
+    --color-code-inline: hsl(17, 45%, 68%);
+    --color-code-inline-background: rgb(255 255 255 / 7%);
+    /* Links and buttons */
+    --color-link: #8bc4ba;
+    --color-link-visited: #95c1b9;
+    --color-button: #4c8d81;
+    --color-button-hover: #629c92;
+    --color-button-text: whitesmoke;
+    --color-api-button: var(--palette-azure-dark);
+    --color-api-button-hover: var(--palette-azure-darker);
+    --color-doc-button: var(--palette-teal-dark);
+    --color-doc-button-hover: var(--palette-teal-darker);
+    --color-nav-selected: var(--palette-teal-light);
+    --color-nav-pill: rgb(139 196 186 / 16%);
+    --color-nav-pill-hover: rgb(139 196 186 / 8%);
+    /* Segments of a position */
+    /* N and Z: violet and orange stay apart for red-green color blindness too */
+    --color-segment-n: var(--palette-violet-light);
+    --color-segment-z: var(--palette-orange-light);
+    /* Inputs of the Setup App */
+    --color-input-background: var(--palette-charcoal-light);
+    --color-input-text: var(--palette-grey-light);
+    --color-input-border: var(--palette-grey);
+    --color-input-label: var(--palette-grey);
+    /* Letter boxes: dark boxes on the dark theme */
+    --color-box-background: hsl(0deg 0% 10% / 80%);
+    --color-box-text: var(--palette-grey-light);
+    --color-box-accent: var(--palette-teal-light);
+    --color-box-border: var(--palette-grey-light);
+    --color-box-symbol: var(--palette-grey);
+    --shadow-box: 2px 2px 4px 2px var(--palette-charcoal-darker);
+    /* Notes */
+    --color-note-border: rgba(100, 180, 200, 0.8);
+    --color-note-background: rgba(0, 31, 38, 0.7);
+    --color-note-title: var(--palette-azure-light);
+    --color-note-code: var(--palette-azure-light);
+    --color-note-marker: var(--palette-azure-lighter);
+  }
+}
+
+/* Text accents */
+.azure {
+  color: var(--color-text-azure);
+}
+
+.teal {
+  color: var(--color-text-teal);
+}
+
+.gold {
+  color: var(--color-text-gold);
+}
+
+.ichor {
+  color: var(--color-error);
+}
+
+.warn {
+  color: var(--color-warning);
+}
+
+/* Base -------------------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+#app {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.filler {
+  flex: 1 1 auto;
+}
+
+.divider {
+  height: 0;
+  margin: 2.5rem var(--size-article-inset) 0;
+  border: 0;
+  border-top: var(--size-divider) solid var(--color-border);
+}
+
+/* Header ------------------------------------------------------------------ */
+
+.header {
+  /* The same inset as the nav icons (nav item + nav link padding), so the logo sits over them */
+  --header-inset: calc(0.15rem + 0.5rem);
+  height: var(--size-header-height);
+  color: var(--color-text);
+  /* Mirrored on both sides */
+  padding-inline: var(--header-inset);
+  border-bottom: var(--size-divider) solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  > h1 {
+    margin: 0;
+    font-weight: lighter;
+    font-size: 2.25rem;
+    line-height: 1;
+  }
+}
+
+.logo {
+  flex: 0 0 auto;
+  width: var(--size-nav-icon);
+  height: var(--size-nav-icon);
+  background-color: whitesmoke;
+  border-radius: 4px;
+}
+
+/* The two header buttons are a pair: same height, radius, icon size and text, icon first */
+.github-button,
+.header .api-button {
+  flex: 0 0 auto;
+  height: var(--size-header-button);
+  padding: 0 0.75rem;
+  margin: 0;
+  gap: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+/* Secondary: outlined */
+.github-button {
+  color: var(--color-text);
+  background-color: transparent;
+  border: var(--size-divider) solid var(--color-border);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-nav-pill-hover);
+  }
+}
+
+.github-button__icon {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Primary: filled */
+.header .api-button {
+  border: var(--size-divider) solid transparent;
+
+  i {
+    font-size: 1.15rem;
+  }
+}
+
+/* Navigator --------------------------------------------------------------- */
+
+.nav {
+  /* The links switch to the narrow layout and the short labels by the width of the navigator itself */
+  container: nav / inline-size;
+  position: absolute;
+  top: var(--size-header-height);
+  height: calc(100% - var(--size-header-height));
+  width: var(--size-nav-width);
+  padding: 0.5rem 0;
+  box-shadow: var(--size-divider) 0 0 0 var(--color-border);
+  transition-duration: 225ms;
+  transition-property: flex-basis, width;
+  transition-timing-function: ease-in-out;
+}
+
+.nav__list {
+  list-style: none;
+  height: 100%;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* The column never grows wider than the navigator, so a long label can't push the links off-center */
+  grid-template-columns: minmax(0, 1fr);
+  /* A small minimum gap: on tall screens the rows still stretch, on short ones they fit before scrolling */
+  gap: 0.25rem;
+  /*
+   * When it must scroll (small phones), the scrollbar is hidden but scrolling keeps working:
+   * a scrollbar takes space from the right side only and would unbalance the links.
+   */
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.nav__item {
+  user-select: none;
+  width: 100%;
+  margin: 0;
+  padding: 0 0.15rem;
+  color: var(--color-text);
+}
+
+.nav__link {
+  width: 100%;
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin: 0;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+
+  svg {
+    flex: 0 0 auto;
+    color: inherit;
+    height: var(--size-nav-icon);
+    width: var(--size-nav-icon);
+  }
+
+  .nav__item__text {
+    color: inherit;
+    font-size: 1.1rem;
+    text-align: center;
+    text-wrap: wrap;
+  }
+
+  /* Only one label is shown, see the narrow navigator below */
+  .nav__item__text--short {
+    display: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-nav-pill-hover);
+  }
+
+  /* The current page: its color and a pill, so it isn't marked by color alone */
+  &[aria-current="page"] {
+    color: var(--color-nav-selected);
+    background-color: var(--color-nav-pill);
+  }
+}
+
+/* Narrow navigator: icon over a one-word label, with room on both sides */
+@container nav (max-width: 120px) {
+  .nav__item {
+    padding: 0 0.25rem;
+  }
+
+  .nav__link {
+    flex-direction: column;
+    gap: 0;
+    padding: 0.35rem 0.15rem;
+
+    .nav__item__text {
+      font-size: 0.75rem;
+    }
+
+    .nav__item__text--full {
+      display: none;
+    }
+
+    .nav__item__text--short {
+      display: inline;
+    }
+  }
+}
+
+/* Content and pages ------------------------------------------------------- */
+
+.content {
+  /* Box sizes use cqi: a percentage of this column, not of the window (the navigator takes part of it) */
+  container: content / inline-size;
+  height: calc(100% - var(--size-header-height));
+  width: calc(100% - var(--size-nav-width));
+  margin-left: var(--size-nav-width);
+  overflow: auto;
+}
+
+.page {
+  width: 100%;
+}
+
+article {
+  animation: 0.3s ease 0s 1 normal none running fade-in;
+  padding: 0.25rem var(--size-article-inset);
+
+  .doc-button,
+  .api-button {
+    padding: 0 0.45em;
+    margin-inline: 0.2em 0.35em;
+  }
+
+  h1,
+  h2 {
+    font-size: var(--font-size-title);
+    text-align: center;
+  }
+
+  h2 {
+    color: var(--color-text-muted);
+  }
+
+  code {
+    color: var(--color-code-inline);
+    background-color: var(--color-code-inline-background);
+    padding: 0.05em 0.3em;
+    border-radius: 0.25rem;
+  }
+
+  .n {
+    color: var(--color-segment-n);
+  }
+
+  .z {
+    color: var(--color-segment-z);
+  }
+}
+
+.text-block {
+  line-height: var(--line-height-text);
+  font-size: var(--font-size-text);
+
+  a {
+    color: var(--color-link);
+
+    &:visited {
+      color: var(--color-link-visited);
+    }
+  }
+}
+
+/* Footer ------------------------------------------------------------------ */
+
+.footer {
+  /* Starts at the same edge as the page text and the divider, with room above and below */
+  padding: 1rem var(--size-article-inset) 2rem;
+  font-size: var(--font-size-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+/*
+ * A link with an arrow beside both of its lines, so the label ("Previous") and the page name
+ * share the same edge. The negative margin keeps the text on the page edge while the hover pill
+ * extends around it.
+ */
+.footer__button {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  column-gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  margin-inline: -0.75rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: var(--color-link);
+
+  &::before,
+  &::after {
+    grid-row: 1 / span 2;
+    font-size: 1.6em;
+    line-height: 1;
+    color: var(--color-text-muted);
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-nav-pill-hover);
+  }
+}
+
+.footer__content {
+  text-transform: capitalize;
+  font-weight: bolder;
+  font-size: max(0.75rem, 0.7em);
+  color: var(--color-text);
+}
+
+.footer__name {
+  font-size: 0.9em;
+}
+
+.footer__button__previous {
+  text-align: left;
+
+  &::before {
+    content: "‹";
+    grid-column: 1;
+  }
+
+  .footer__content,
+  .footer__name {
+    grid-column: 2;
+  }
+}
+
+.footer__button__next {
+  /* On the first page there is no "previous": "next" still goes to the right */
+  margin-inline-start: auto;
+  text-align: right;
+
+  &::after {
+    content: "›";
+    grid-column: 2;
+  }
+
+  .footer__content,
+  .footer__name {
+    grid-column: 1;
+  }
+}
+
+/* Links and buttons ------------------------------------------------------- */
+
+.link {
+  color: var(--color-link);
+  text-decoration: none;
+
+  .text-block &:visited,
+  &:visited {
+    color: var(--color-link);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-link-visited);
+    text-decoration: underline;
+  }
+}
+
+.api-button,
+.doc-button {
+  /* Icon and text side by side; the space around the button is outside it */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  text-decoration: none;
+  font-size: inherit;
+  line-height: 1.5;
+  cursor: pointer;
+  text-wrap: nowrap;
+  border: none;
+  margin: 0;
+  border-radius: 0.25rem;
+  box-shadow: 2px 2px 4px 2px var(--color-shadow);
+
+  span {
+    color: var(--color-button-text);
+  }
+
+  i {
+    font-style: normal;
+  }
+}
+
+.api-button {
+  background-color: var(--color-api-button);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-api-button-hover);
+  }
+}
+
+.doc-button {
+  background-color: var(--color-doc-button);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-doc-button-hover);
+  }
+}
+
+/* Note -------------------------------------------------------------------- */
+
+.note {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 2px solid var(--color-note-border);
+  background-color: var(--color-note-background);
+  line-height: 125%;
+  font-size: var(--font-size-text);
+
+  .note__start {
+    font-weight: bolder;
+    color: var(--color-note-title);
+  }
+
+  code {
+    color: var(--color-note-code);
+  }
+
+  a {
+    color: var(--color-link);
+
+    &:visited {
+      color: var(--color-link-visited);
+    }
+  }
+
+  ul {
+    list-style: none;
+
+    li::marker {
+      content: "❧ ";
+      color: var(--color-note-marker);
+    }
+  }
+}
+
+/* Code block -------------------------------------------------------------- */
+
+.code-block {
+  display: grid;
+  justify-items: center;
+  margin: 1rem 0;
+}
+
+.code-block__display {
+  width: 85%;
+  border-radius: 4px;
+  outline: 1px solid var(--palette-charcoal-dark);
+  overflow: hidden;
+}
+
+.code-block__menu {
+  color: #1e1e1e;
+  background-color: var(--palette-grey-lighter);
+  font-size: var(--font-size-text);
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+
+  .title {
+    text-transform: lowercase;
+    padding: 1rem 0 1rem 1rem;
+  }
+}
+
+.code-block__text {
+  margin: 0;
+  max-height: var(--size-code-max-height);
+  overflow: auto;
+  line-height: var(--line-height-text);
+  font-size: var(--font-size-text);
+  font-family: "Courier New", Courier, monospace;
+  width: 100%;
+  padding: 0.25rem 1rem 0.25rem 2rem;
+  color: var(--color-code-text);
+  background-color: var(--color-code-background);
+  white-space: pre;
+
+  code {
+    color: inherit;
+    font-family: inherit;
+    background-color: transparent;
+    padding: 0;
+  }
+}
+
+.copy-button {
+  cursor: pointer;
+  margin-right: 0.5rem;
+  border: none;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--palette-charcoal-dark);
+  color: var(--palette-charcoal-dark);
+  background-color: var(--palette-grey-light);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 2px 6px;
+
+  i {
+    font-style: normal;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--palette-grey);
+  }
+}
+
+/*
+ * Code colors: the VS Code "Dark+" theme with semantic highlighting,
+ * plus the C# color for interfaces.
+ */
+.code-block {
+  --color-code-background: #1e1e1e;
+  --color-code-text: #d4d4d4;
+  --color-code-comment: #6a9955;
+  --color-code-string: #ce9178;
+  --color-code-number: #b5cea8;
+  --color-code-keyword: #569cd6;
+  --color-code-control: #c586c0;
+  --color-code-type: #4ec9b0;
+  --color-code-interface: #b8d7a3;
+  --color-code-function: #dcdcaa;
+  --color-code-variable: #9cdcfe;
+  --color-code-constant: #4fc1ff;
+  --color-code-punctuation: #808080;
+  --color-code-bracket-0: #ffd700;
+  --color-code-bracket-1: #da70d6;
+  --color-code-bracket-2: #179fff;
+}
+
+.code-block__text {
+  .comment {
+    color: var(--color-code-comment);
+  }
+  .string {
+    color: var(--color-code-string);
+  }
+  .number {
+    color: var(--color-code-number);
+  }
+  .keyword {
+    color: var(--color-code-keyword);
+  }
+}
+
+.code-block__typescript,
+.code-block__javascript {
+  .control {
+    color: var(--color-code-control);
+  }
+  .type {
+    color: var(--color-code-type);
+  }
+  .interface {
+    color: var(--color-code-interface);
+  }
+  .function {
+    color: var(--color-code-function);
+  }
+  .variable,
+  .property {
+    color: var(--color-code-variable);
+  }
+  .constant {
+    color: var(--color-code-constant);
+  }
+  .bracket-0 {
+    color: var(--color-code-bracket-0);
+  }
+  .bracket-1 {
+    color: var(--color-code-bracket-1);
+  }
+  .bracket-2 {
+    color: var(--color-code-bracket-2);
+  }
+}
+
+.code-block__bash .command {
+  color: var(--color-code-function);
+}
+
+.code-block__html {
+  .symbol {
+    color: var(--color-code-punctuation);
+  }
+  .tag {
+    color: var(--color-code-keyword);
+  }
+  .attribute {
+    color: var(--color-code-variable);
+  }
+}
+
+/* Table ------------------------------------------------------------------- */
+
+.table__container {
+  overflow-x: auto;
+  margin: 1rem 0;
+  font-size: calc(var(--font-size-text) * 0.8);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  line-height: 1.5;
+
+  /* Wide tables scroll sideways on small screens instead of squeezing their columns */
+  &.table--wide {
+    min-width: 46rem;
+  }
+
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  th {
+    color: var(--color-text-muted);
+    border-bottom-width: 2px;
+  }
+
+  code {
+    white-space: nowrap;
+  }
+}
+
+/* Boxes ------------------------------------------------------------------- */
+
+.box-container {
+  display: flex;
+  flex-wrap: nowrap;
+  /* Centered while it fits, and never cut on the left when it doesn't */
+  justify-content: safe center;
+  align-items: center;
+  gap: var(--box-gap);
+  min-width: 100%;
+  overflow: auto;
+  padding: 1rem 0.25rem;
+
+  .box {
+    height: var(--box-size);
+    width: var(--box-size);
+    flex: 0 0 auto;
+    overflow: hidden;
+    font-size: var(--box-font-size);
+    border-radius: 0.25rem;
+    background-color: var(--color-box-background);
+    color: var(--color-box-accent);
+    box-shadow: var(--shadow-box);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .box-symbol {
+    height: var(--box-size);
+    width: calc(var(--box-size) * 0.6);
+    flex: 0 0 auto;
+    font-size: calc(var(--box-font-size) * 1.4);
+    color: var(--color-box-symbol);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .box--reinserted {
+    color: whitesmoke;
+    background-color: var(--palette-teal-deep);
+  }
+
+  .box--invalid {
+    color: whitesmoke;
+    background-color: var(--palette-ichor-darker);
+  }
+
+  .box--number {
+    color: whitesmoke;
+    background-color: var(--palette-olive-deep);
+  }
+}
+
+/*
+ * Showcase: a few big boxes where the comparison is the lesson (a < ab < b, d + a = e).
+ * On a phone the longest one (4 boxes and 3 operators) still fits the column.
+ */
+.box-container--showcase {
+  --box-size: clamp(2.25rem, 11cqi, 7.5rem);
+  --box-font-size: calc(var(--box-size) * 0.45);
+  /* On narrow columns the gaps shrink first, so the boxes keep their size */
+  --box-gap: clamp(0.25rem, 2cqi - 0.25rem, 1.25rem);
+}
+
+/*
+ * Sequence: up to 8 boxes showing where an item lands between its neighbors,
+ * so the row must fit a phone without scrolling sideways.
+ */
+.box-container--sequence {
+  --box-size: clamp(1.75rem, 7cqi, 4.5rem);
+  --box-font-size: max(0.75rem, calc(var(--box-size) * 0.42));
+  /* On narrow columns the gaps shrink first, so the boxes keep their size */
+  --box-gap: clamp(0.125rem, 1.5cqi - 0.25rem, 1.5rem);
+}
+
+/* Page: introduction ------------------------------------------------------ */
+
+#page-introduction {
+  padding: 1rem 2rem;
+
+  .questions {
+    list-style: none;
+    margin: 0;
+    font-size: var(--font-size-text);
+
+    li {
+      margin: 10px 0;
+
+      &::marker {
+        content: "👉 ";
+      }
+    }
+  }
+}
+
+/* Page: number system ----------------------------------------------------- */
+
+.text-block .list {
+  margin: 0;
+  list-style: none;
+}
+
+.list__item:not(.list__item--invalid)::marker {
+  content: "✓    ";
+  color: var(--palette-teal);
+  font-weight: bolder;
+}
+
+.list__item--invalid::marker {
+  content: "✗    ";
+  color: var(--palette-ichor-dark);
+  font-weight: bolder;
+}
+
+.letters {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .subtitle {
+    font-size: var(--font-size-text);
+    display: block;
+    text-align: center;
+    font-weight: normal;
+  }
+}
+
+/* Grid: a reference read at a glance, with letters bigger than the text and as many columns as fit */
+.letters__body {
+  width: 100%;
+  margin: 0;
+  padding: 1rem 0.5rem;
+  list-style: none;
+  font-size: clamp(1.15rem, 2.6cqi, 2.25rem);
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(4rem, 9cqi, 7rem), 1fr));
+
+  > li {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    outline: 1px solid var(--color-box-border);
+    color: var(--color-box-text);
+    background-color: var(--color-box-background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    :nth-child(2) {
+      color: var(--palette-charcoal-lighter);
+    }
+
+    :nth-child(3) {
+      color: var(--color-box-accent);
+    }
+  }
+}
+
+/* Page: positions --------------------------------------------------------- */
+
+.market-list__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.market-list {
+  font-size: var(--font-size-text);
+  background-color: var(--palette-grey-lighter);
+  padding: 0.25rem 0.5rem;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  justify-content: center;
+
+  .title {
+    text-align: center;
+    font-style: italic;
+    color: var(--palette-charcoal-lighter);
+    border-bottom: 2px solid var(--palette-ichor-darker);
+  }
+
+  .list {
+    min-width: 30rem;
+    margin: 0;
+    list-style: none;
+    counter-reset: list;
+
+    > li {
+      color: var(--palette-grey-darker);
+      list-style: none;
+      margin: 0.25rem 0 0.25rem 0.25rem;
+      counter-increment: list;
+
+      &::marker {
+        content: counter(list, lower-alpha) ")\a0";
+        font-weight: bolder;
+      }
+
+      &::after {
+        display: block;
+        content: " ";
+        border-bottom: 1px solid var(--palette-grey);
+      }
+    }
+  }
+}
+
+/* Page: maths ------------------------------------------------------------- */
+
+#maths code {
+  white-space: nowrap;
+}
+
+.race-list__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.race-list {
+  font-size: var(--font-size-text);
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  background-color: var(--palette-grey-lighter);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 27rem;
+  justify-content: center;
+  align-items: center;
+
+  .title {
+    text-align: center;
+    font-style: italic;
+    color: var(--palette-charcoal-light);
+  }
+
+  hr {
+    width: 98%;
+    border: 1px solid var(--palette-gold);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+
+    li {
+      color: var(--palette-grey-darker);
+
+      code {
+        color: var(--palette-gold-dark);
+      }
+
+      &::marker {
+        content: "🍰 ";
+      }
+
+      &::after {
+        display: block;
+        content: " ";
+        border-bottom: 1px solid var(--palette-grey);
+      }
+    }
+  }
+}
+
+/* Page: setup ------------------------------------------------------------- */
+
+.setup-calculator {
+  font-size: var(--font-size-title);
+  display: grid;
+  gap: 1rem;
+  grid-template-areas:
+    "characters"
+    "sliders"
+    "menu";
+}
+
+.setup-calculator__characters {
+  grid-area: characters;
+  justify-content: center;
+  display: flex;
+  gap: var(--font-size-title);
+
+  label {
+    font-size: inherit;
+    color: var(--color-input-label);
+    display: grid;
+    gap: 0.5rem;
+
+    span {
+      touch-action: none;
+      user-select: none;
+      text-align: center;
+    }
+
+    input {
+      font-family: inherit;
+      font-size: inherit;
+      height: var(--size-input-box);
+      width: var(--size-input-box);
+      color: var(--color-input-text);
+      background-color: var(--color-input-background);
+      text-align: center;
+      border: none;
+      border-radius: 2px;
+      outline: 2px solid var(--color-input-border);
+    }
+  }
+}
+
+.setup-calculator__characters input[aria-invalid="true"] {
+  outline-color: var(--color-error);
+}
+
+.setup-calculator__sliders {
+  color: var(--color-input-label);
+  grid-area: sliders;
+  display: grid;
+
+  input[type="range"] {
+    accent-color: var(--color-button);
+  }
+}
+
+.setup-calculator__menu {
+  padding: 0;
+  grid-area: menu;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.setup-calculator__reset {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 4px var(--font-size-text);
+  border-width: 1px;
+  border-radius: 4px;
+  color: white;
+  background-color: var(--color-button);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-button-hover);
+  }
+}
+
+/* Sortable list ----------------------------------------------------------- */
+
+.sortable-items__container {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  flex: 1 1 auto;
+}
+
+.sortable-items__list {
+  list-style: none;
+  padding: 1rem;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.sortable-box {
+  height: 9rem;
+  width: 9rem;
+  color: var(--palette-charcoal-darker);
+  user-select: none;
+  touch-action: none;
+  border: none;
+  border-radius: 2px;
+  aspect-ratio: 1;
+  box-shadow: 4px 5px 10px 2px var(--color-shadow);
+}
+
+.sortable__item {
+  cursor: move;
+  font-size: 1.25rem;
+  background-color: whitesmoke;
+  display: grid;
+
+  i {
+    font-style: normal;
+    font-size: 2.5rem;
+    text-align: center;
+  }
+
+  .sortable__item__header {
+    text-wrap: nowrap;
+    padding: 2px 10px;
+  }
+
+  .sortable__item__footer {
+    text-wrap: nowrap;
+    padding-right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}
+
+/* Class added by SortableJS to the dragged element */
+.sortable__item__container.sortable-drag .sortable__item {
+  background: var(--palette-khaki-lighter) !important;
+}
+
+.sortable__adder {
+  cursor: pointer;
+  background-color: var(--color-button);
+  fill: var(--palette-grey-lighter);
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-button-hover);
+  }
+}
+
+/* Items whose position was just written to the "database" */
+.sortable__item--written .sortable__item {
+  animation: written 0.9s ease-out;
+}
+
+/* Write counter of the sortable list */
+.sortable-items__container {
+  flex-direction: column;
+}
+
+.writes {
+  width: min(100%, 36rem);
+  margin: 0 auto 1rem;
+  font-size: calc(var(--font-size-text) * 0.75);
+}
+
+.writes__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+
+  caption {
+    color: var(--color-text-muted);
+    font-style: italic;
+    padding-bottom: 0.25rem;
+  }
+
+  th,
+  td {
+    padding: 0.25rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  tbody th {
+    text-align: left;
+    font-weight: normal;
+    color: var(--color-text-muted);
+  }
+
+  td {
+    font-variant-numeric: tabular-nums;
+    font-weight: bolder;
+  }
+
+  td:nth-child(2) {
+    color: var(--color-link);
+  }
+
+  td:nth-child(3) {
+    color: var(--color-error);
+  }
+}
+
+.writes__message {
+  min-height: 2.5em;
+  margin: 0.5rem 0 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* Comparison tables of the "Why Staquia" page */
+.verdict--good {
+  color: var(--color-link);
+}
+
+.verdict--bad {
+  color: var(--color-error);
+}
+
+/* Animations -------------------------------------------------------------- */
+
+@keyframes written {
+  0% {
+    box-shadow: 0 0 0 4px var(--color-link);
+  }
+  100% {
+    box-shadow: 4px 5px 10px 2px var(--color-shadow);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Responsive -------------------------------------------------------------- */
+
+@media (max-width: 1700px) {
+  :root {
+    --font-size-title: 2.25rem;
+    --font-size-text: 1.75rem;
+  }
+}
+
+@media (max-width: 1450px) {
+  :root {
+    --font-size-title: 2rem;
+    --font-size-text: 1.5rem;
+  }
+}
+
+@media (max-width: 980px) {
+  :root {
+    --size-nav-width: 87px;
+    --line-height-text: 2rem;
+    --font-size-text: 1.2rem;
+    --font-size-title: 1.75rem;
+  }
+  .header {
+    /* Centers the logo over the narrow navigator */
+    --header-inset: calc((var(--size-nav-width) - var(--size-nav-icon)) / 2);
+    gap: 0.5rem;
+
+    > h1 {
+      font-size: 1.75rem;
+    }
+  }
+  /* Icon-only square buttons; the text is hidden visually but still names the link */
+  .github-button,
+  .header .api-button {
+    width: var(--size-header-button);
+    padding: 0;
+  }
+  .github-button__text,
+  .header .api-button__text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  :root {
+    --size-article-inset: 1rem;
+  }
+  article {
+    padding-block: 0.4rem;
+  }
+  .code-block__display {
+    width: 100%;
+  }
+  .note ul {
+    padding-left: 1.5rem;
+  }
+  .sortable-box {
+    height: 6rem;
+    width: 6rem;
+  }
+  .sortable__item {
+    font-size: 0.8rem;
+
+    .sortable__item__header {
+      padding: 2px 5px;
+    }
+
+    i {
+      font-size: 2rem;
+    }
+  }
+}
+
+@media (max-width: 670px) {
+  :root {
+    --size-code-max-height: 300px;
+  }
+  .market-list .list {
+    min-width: 20rem;
+  }
+  .race-list {
+    grid-template-columns: 21rem;
+  }
+  .sortable-box {
+    height: 5rem;
+    width: 5rem;
+  }
+  .sortable__item {
+    font-size: 0.7rem;
+
+    i {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  :root {
+    --size-nav-width: 75px;
+    --font-size-text: 1rem;
+    --font-size-title: 1.5rem;
+    --size-input-box: 3.2rem;
+  }
+  .header > h1 {
+    font-size: 1.5rem;
+  }
+  .copy-button span {
+    display: none;
+  }
+  article {
+    padding-block: 0.25rem;
+  }
+  .code-block__text {
+    padding: 0.25rem 0.75rem;
+  }
+  .market-list .list {
+    min-width: auto;
+  }
+  .race-list {
+    grid-template-columns: 15rem;
+  }
+  .sortable-box {
+    height: 4rem;
+    width: 4rem;
+  }
+  .sortable__item {
+    font-size: 0.6rem;
+
+    i {
+      font-size: 1.3rem;
+    }
+  }
+}
+
+/* Palette ----------------------------------------------------------------- */
+/* The colors used above, from the shared palette of the deployed site.      */
+:root {
+  --palette-azure: hsl(197, 45%, 38%);
+  --palette-azure-dark: hsl(197, 45%, 30%);
+  --palette-azure-darker: hsla(197, 45%, 25%);
+  --palette-azure-light: #78b8d1;
+  --palette-azure-lighter: #acd4e3;
+  --palette-charcoal: #303030;
+  --palette-charcoal-dark: #252525;
+  --palette-charcoal-darker: #050505;
+  --palette-charcoal-light: #363636;
+  --palette-charcoal-lighter: #999;
+  --palette-gold: oklch(83.306% .15723 89.252);
+  --palette-gold-dark: oklch(70.988% .14007 92.682);
+  --palette-gold-darker: hsl(38, 89%, 33%);
+  --palette-grey: #b8b8b8;
+  --palette-grey-dark: #777;
+  --palette-grey-darker: #616161;
+  --palette-grey-light: #dedede;
+  --palette-grey-lighter: #f0f0f0;
+  --palette-ichor-dark: hsl(360, 100%, 35%);
+  --palette-ichor-darker: hsl(360, 100%, 25%);
+  --palette-ichor-light: hsl(360, 100%, 75%);
+  --palette-khaki-lighter: oklch(82.283% .07882 94.766);
+  --palette-orange-darker: oklch(52.149% .16163 39.505);
+  --palette-orange-light: oklch(77.721% .13157 56.054);
+  --palette-violet: oklch(48% 0.16 300);
+  --palette-violet-light: oklch(74% 0.12 300);
+  --palette-teal: hsl(170, 80%, 30%);
+  --palette-teal-dark: hsl(170, 80%, 20%);
+  --palette-teal-darker: hsl(170, 80%, 15%);
+  --palette-teal-light: hsl(170, 65%, 70%);
+  /* Fills with light text: readable (≥ 4.5:1) and distinct from the boxes in both themes */
+  --palette-teal-deep: hsl(170, 80%, 25%);
+  --palette-olive-deep: hsl(75, 27%, 35%);
+}
