@@ -4,7 +4,8 @@ import Link from "../../shared/link.ts";
 import DocsButton from "../../shared/docs-button.ts";
 import ApiButton from "../../shared/api-button.ts";
 import StaquiaList from "../../shared/staquia-list.ts";
-import { crateVersion, version } from "../../../data/app.ts";
+import { version } from "../../../data/app.ts";
+import { languages } from "../../../data/languages.ts";
 import { lang, only } from "../../shared/lang.ts";
 
 export default class GetStarted extends Component {
@@ -39,7 +40,7 @@ export default class GetStarted extends Component {
     npm install staquia@${version}
   `, { rust: { language: "bash", code: `
     # Add the crate to Cargo.toml
-    cargo add staquia@${crateVersion}
+    cargo add staquia@${languages.rust.version}
   ` } })}
   ${only("javascript", `
   <section class="text-block">

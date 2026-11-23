@@ -142,13 +142,13 @@ export const CodeLanguage = {
   root: data("language"),
   /** On any element: the space-separated languages it is shown for (`[data-lang~="rust"]`). */
   variant: data("lang"),
-  /** The `<select>` that chooses the language (one per code block with variants, one in the header). */
+  /** The global `<select>` in the header that chooses the language. */
   switch: className("language-switch"),
-  /** A code block with one variant per language, kept in place while the language changes. */
+  /** A code block, one variant per language. */
   block: className("code-block"),
   /** The languages, the first one is the default and the fallback. */
   values: ["javascript", "rust"],
-  /** The names shown by the switches: full (code blocks) and short (header). */
+  /** The names of the languages: full (text, options) and short (the closed select in the narrow header). */
   labels: { javascript: ["JavaScript", "JS"], rust: ["Rust", "Rust"] },
   /** The `localStorage` key of the choice (per viewer, wrapped in try/catch: storage can be blocked). */
   storage: "staquia-code-language",

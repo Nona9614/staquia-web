@@ -171,8 +171,9 @@ export default class Database extends Component {
     }
   ` })}
   ${new Note(`
-    The same applies to any storage that sorts strings: a key-value store with ordered keys, an index in the browser
-    (<code>IndexedDB</code>), or a plain <code>array.sort()</code> by the <code>position</code> field. See ${new Link("example")} for the
+    The same applies to any storage that sorts strings: a key-value store with ordered keys, ${lang(`an index in the browser
+    (<code>IndexedDB</code>), or a plain <code>array.sort()</code> by the <code>position</code> field.`, { rust: `a
+    <code>BTreeMap</code> keyed by position, or a plain <code>sort_by</code> on the <code>position</code> field.` })} See ${new Link("example")} for the
     application side.`)}
 </article>`;
   }

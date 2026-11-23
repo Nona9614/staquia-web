@@ -811,7 +811,7 @@ article {
 
 /* Code language ------------------------------------------------------------
  * The CSS that hides the other languages is generated from `CodeLanguage` (contract.ts) by
- * components/layout/language-boot.ts. Here only the look of the <select> switches.
+ * components/layout/language-boot.ts. Here only the look of the global <select> in the header.
  */
 
 .language-switch {
@@ -838,16 +838,6 @@ article {
   background-color: var(--color-background);
   /* The opened list follows the theme too */
   color-scheme: light dark;
-}
-
-/* In the menu of a code block: in place of the language title, on the light menu bar of both themes */
-.code-block__menu .language-switch {
-  margin: 0.5rem 0 0.5rem 1rem;
-  border: 1px solid var(--palette-charcoal-dark);
-  color: #1e1e1e;
-  background-color: var(--palette-grey-light);
-  color-scheme: light;
-  font-size: 15px;
 }
 
 /* Table ------------------------------------------------------------------- */

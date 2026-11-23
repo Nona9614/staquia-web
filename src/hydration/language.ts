@@ -9,40 +9,45 @@ function current(): CodeLanguageName {
   return isLanguage(value) ? value : CodeLanguage.values[0];
 }
 
-/** Shows the chosen language in every switch. */
-function sync(language: CodeLanguageName): void {
-  for (const select of document.querySelectorAll<HTMLSelectElement>(CodeLanguage.switch.selector)) select.value = language;
+/**
+ * The element at the top of the content that stays visible in every language: content of one language is
+ * replaced, so its closest container shared by all of them is used.
+ */
+function anchor(content: Element): Element | undefined {
+  const box = content.getBoundingClientRect();
+  let element = document.elementFromPoint(box.left + box.width / 2, box.top + 1);
+  while (element) {
+    const variant = element.closest(CodeLanguage.variant.selector);
+    if (!variant) break;
+    element = variant.parentElement;
+  }
+  return element && element !== content && content.contains(element) ? element : undefined;
 }
 
 /**
- * Hydrates the code language switches: choosing a language in any of them shows every sample in it, stores the
- * choice for the next visits and keeps the code block of the switch where it was on the screen.
+ * Hydrates the global code language `<select>`: choosing a language shows every sample, text and link of it,
+ * stores the choice for the next visits and keeps the reading position (the content above may change height).
  */
 export function hydrateLanguage(): void {
-  sync(current());
-  document.addEventListener("change", (event) => {
-    const select = event.target as HTMLSelectElement | null;
-    if (!select?.matches(CodeLanguage.switch.selector)) return;
+  const select = document.querySelector<HTMLSelectElement>(CodeLanguage.switch.selector);
+  if (!select) return;
+  select.value = current();
+  select.addEventListener("change", () => {
     const language = select.value;
     if (!isLanguage(language) || language === current()) return;
 
-    // The samples above may change their height: keep this block still
-    const block = select.closest(CodeLanguage.block.selector);
     const content = document.querySelector(Navigation.content.selector);
-    const before = block?.getBoundingClientRect().top;
+    const target = content ? anchor(content) : undefined;
+    const before = target?.getBoundingClientRect().top;
 
     if (language === CodeLanguage.values[0]) document.documentElement.removeAttribute(CodeLanguage.root.name);
     else document.documentElement.setAttribute(CodeLanguage.root.name, language);
-    sync(language);
     try {
       localStorage.setItem(CodeLanguage.storage, language);
     } catch {
       // Storage blocked (private mode, disabled site data): the choice lasts until the page is closed
     }
 
-    if (block && content && before !== undefined) content.scrollTop += block.getBoundingClientRect().top - before;
-    // The switch of the variant now shown takes the focus, this one may be hidden
-    const visible = [...(block?.querySelectorAll<HTMLSelectElement>(CodeLanguage.switch.selector) ?? [])].find((other) => other.offsetParent !== null);
-    visible?.focus({ preventScroll: true });
+    if (content && target && before !== undefined) content.scrollTop += target.getBoundingClientRect().top - before;
   });
 }

@@ -37,3 +37,20 @@ export function lang(javascript: string, variants: Partial<Record<ExtraCodeLangu
 export function fallbackFor(own: readonly CodeLanguageName[]): CodeLanguageName[] {
   return CodeLanguage.values.filter((language) => language === fallback || !own.includes(language));
 }
+
+/**
+ * Renders something once per code language, e.g. a link to the API of each one. Languages that render the same
+ * HTML share one element, so a link that is the same for every language is written once.
+ *
+ * @param render - The HTML for a language.
+ * @param tag - The wrapper element of each variant.
+ */
+export function perLanguage(render: (language: CodeLanguageName) => string, tag: "span" | "div" = "span"): string {
+  const groups = new Map<string, CodeLanguageName[]>();
+  for (const language of CodeLanguage.values) {
+    const html = render(language);
+    groups.set(html, [...(groups.get(html) ?? []), language]);
+  }
+  if (groups.size === 1) return [...groups.keys()][0]!;
+  return [...groups].map(([html, group]) => only(group, html, tag)).join("");
+}

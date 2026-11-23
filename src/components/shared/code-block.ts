@@ -1,8 +1,7 @@
 import Component, { escape } from "../component.ts";
 import CopyButton from "./copy-button.ts";
-import LanguageSwitch from "./language-switch.ts";
 import { CodeLanguage, type CodeLanguageName, type ExtraCodeLanguage } from "../../contract.ts";
-import { fallbackFor } from "./lang.ts";
+import { fallbackFor, only } from "./lang.ts";
 import { dedent, highlight, type Language } from "../../services/highlight.service.ts";
 
 /** A variant of a code block: code in its code language, or `{ language, code }` for another syntax (e.g. bash). */
@@ -63,8 +62,15 @@ export default class CodeBlock extends Component {
     const switchable = this.variants.length > 1;
     const own = this.variants.slice(1).map((variant) => variant.for);
     const displays = this.variants.map((variant, index) => {
-      const title = switchable ? `${new LanguageSwitch()}` : `<span class="title">${variant.language}</span>`;
       const languages = index === 0 ? fallbackFor(own) : [variant.for];
+      // A JavaScript sample shown because the chosen language has none of its own says so (SQL or HTML are shared)
+      const fallback = /^(java|type)script$/.test(variant.language)
+        ? languages
+            .filter((language) => language !== CodeLanguage.values[0])
+            .map((language) => only(language, ` · no ${CodeLanguage.labels[language][0]} sample yet`, "span"))
+            .join("")
+        : "";
+      const title = `<span class="title">${variant.language}${fallback}</span>`;
       const attribute = switchable ? ` ${CodeLanguage.variant.attr(languages.join(" "))}` : "";
       return `
   <div class="code-block__display code-block__${variant.language}"${attribute}>

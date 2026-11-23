@@ -12,7 +12,7 @@ export default class Header extends Component {
   ${new StaquiaLogo()}
   <h1>Staquia</h1>
   <span class="filler"></span>
-  ${new LanguageSwitch(true)}
+  ${new LanguageSwitch()}
   ${new GitHubButton()}
   ${new ApiButton()}
 </header>`;

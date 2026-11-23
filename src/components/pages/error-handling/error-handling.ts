@@ -236,9 +236,9 @@ export default class ErrorHandling extends Component {
       after a <code>rebalance()</code>.
     </p>`)}
   </section>
-  ${new Note(`
+  ${only("javascript", `${new Note(`
     There are no event handlers for the threshold or the overflow anymore (<code>onThresholdReached</code> and
-    <code>onOverflow</code> were removed in <code>0.4.0</code>). Every failure is returned and checked synchronously.`)}
+    <code>onOverflow</code> were removed in <code>0.4.0</code>). Every failure is returned and checked synchronously.`)}`)}
 </article>`;
   }
 }
