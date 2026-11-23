@@ -51,8 +51,31 @@ export default class Setup extends Component {
   </section>
   ${new SetupDisplayCodeBlock()}
   ${only("rust", `${new Note(`
-    In Rust, <code>ln + lz</code> can be at most <code>32</code> (<code>staquia::MAX_LENGTH</code>): positions are
-    <code>Copy</code> values on the stack, and <code>Staquia::create</code> returns a <code>CreateError</code> above it.`)}`)}
+    <b>In Rust, <code>ln + lz</code> can be at most <code>32</code></b> (<code>staquia::MAX_LENGTH</code>), and
+    <code>Staquia::create</code> returns a <code>CreateError</code> above it. A Rust <code>Position</code> keeps its digits in a
+    fixed array of <code>32</code> instead of a heap allocated string: it is a small <code>Copy</code> value (<code>84</code>
+    bytes) that never allocates, which keeps creating and comparing positions cheap.
+    <br />
+    <br />
+    <code>32</code> is more than real lists need:
+    <ul>
+      <li>The default system uses <code>20</code> (<code>ln = 5</code>, <code>lz = 15</code>), so it already has room to spare.</li>
+      <li>
+        <span class="n">N</span> never runs out in practice: with <code>ln = 5</code> the default system stacks about
+        <code>5.7 × 10<sup>14</sup></code> items in each direction.
+      </li>
+      <li>
+        A longer <span class="z">Z</span> only allows more moves into the <b>same gap</b>: <code>121</code> with the default
+        <code>20</code>, <code>242</code> with <code>32</code>. Any limit is reached at some point, and then the list is rebalanced,
+        which is a single transaction that keeps the order.
+      </li>
+      <li>
+        Every digit is stored in your database and its index: a digit takes up to <code>3</code> bytes in UTF-8 (<code>2</code>
+        with the default digits), so a position of <code>32</code> digits can take <code>96</code> bytes.
+      </li>
+    </ul>
+    Only a very small base (a few digits) gains much from longer positions, and a bigger base is the better fix there.
+    The sliders above go further because the JavaScript library has no fixed array.`)}`)}
   ${new Note(`
     Changing the configuration of a system that already has stored positions changes the meaning of their digits. To migrate
     them, read the rows sorted by their old position, clear their positions and load them into a list of the new system with

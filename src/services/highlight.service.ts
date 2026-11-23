@@ -26,6 +26,8 @@ const primitives = new Set(["number", "string", "boolean", "bigint", "symbol", "
 function script(code: string): string {
   const token = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$ϰ][\w$ϰ]*)|([()[\]{}])|(=>)|([^])/gu;
   const constants = new Set<string>();
+  /** Names declared with `let` or `var`, never colored as built-in types even when they are one (`number`). */
+  const variables = new Set<string>();
   const interfaces = new Set<string>();
   const types = new Set<string>();
   /** The declaration being read: names until `=`, `;`, `of` or `in` belong to it. */
@@ -49,7 +51,8 @@ function script(code: string): string {
       if (previous === ".") kind = /^\s*\(/.test(rest) ? "function" : "property";
       else if (control.has(word)) kind = "control";
       else if (keywords.has(word)) kind = "keyword";
-      else if (primitives.has(word)) kind = "type";
+      // A built-in type name can also be a variable name (`let number = ...`)
+      else if (primitives.has(word) && declaring !== "variable" && declaring !== "constant" && !variables.has(word) && !constants.has(word)) kind = "type";
       else if (declaring === "interface") kind = "interface";
       else if (declaring === "type") kind = "type";
       else if (interfaces.has(word)) kind = "interface";
@@ -61,6 +64,7 @@ function script(code: string): string {
 
       // Remember the names declared by the sample
       if (declaring === "constant" && kind === "constant") constants.add(word);
+      else if (declaring === "variable" && kind === "variable") variables.add(word);
       else if (declaring === "interface") interfaces.add(word);
       else if (declaring === "type") types.add(word);
       html += span(kind, word);
@@ -98,7 +102,7 @@ const rustVariants = new Set(["Some", "None", "Ok", "Err"]);
 /**
  * Rust, with the token kinds of VS Code (rust-analyzer semantic highlighting) mapped to the classes of `script`:
  * `type` (types and modules), `interface` (traits, in the C# color), `constant` (enum variants and `CONSTANTS`),
- * `function` (functions and macros), `variable` (bindings, fields and parameters), `control` (`?` included).
+ * `function`, `macro` (blue, like keywords), `variable` (bindings, fields and parameters), `control` (`?` included).
  *
  * @remarks
  * Like `script`, it is not a parser: the traits are the names after `impl` or `trait` in the sample (and `Item`),
@@ -126,7 +130,7 @@ function rust(code: string): string {
     } else if (word) {
       let kind: string;
       const afterPath = previous === "::";
-      if (word.endsWith("!")) kind = "function";
+      if (word.endsWith("!")) kind = "macro";
       // `impl Trait for Type` declares, it is not a loop
       else if (word === "for" && /\bimpl\b[^{;]*$/.test(code.slice(0, match.index))) kind = "keyword";
       else if (rustControl.has(word)) kind = "control";

@@ -754,7 +754,8 @@ article {
   .number {
     color: var(--color-code-number);
   }
-  .keyword {
+  .keyword,
+  .macro {
     color: var(--color-code-keyword);
   }
 }
