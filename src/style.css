@@ -830,6 +830,11 @@ article {
   }
 }
 
+/* Wide screens show the full names, phones the short ones (see the 670px breakpoint) */
+.language-switch--short {
+  display: none;
+}
+
 /* In the header: outlined like the GitHub button, with its height, following the theme */
 .header .language-switch {
   height: var(--size-header-button);
@@ -1465,6 +1470,13 @@ article {
 }
 
 @media (max-width: 670px) {
+  /* Phones: the language switch with the short names */
+  .language-switch--full {
+    display: none;
+  }
+  .language-switch--short {
+    display: inline-block;
+  }
   :root {
     --size-code-max-height: 300px;
   }

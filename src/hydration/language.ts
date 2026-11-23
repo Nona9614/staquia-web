@@ -25,16 +25,19 @@ function anchor(content: Element): Element | undefined {
 }
 
 /**
- * Hydrates the global code language `<select>`: choosing a language shows every sample, text and link of it,
+ * Hydrates the global code language `<select>`s (full and short names, kept in sync): choosing a language shows every sample, text and link of it,
  * stores the choice for the next visits and keeps the reading position (the content above may change height).
  */
 export function hydrateLanguage(): void {
-  const select = document.querySelector<HTMLSelectElement>(CodeLanguage.switch.selector);
-  if (!select) return;
-  select.value = current();
-  select.addEventListener("change", () => {
+  const selects = [...document.querySelectorAll<HTMLSelectElement>(CodeLanguage.switch.selector)];
+  const sync = (language: CodeLanguageName) => selects.forEach((select) => (select.value = language));
+  sync(current());
+  document.addEventListener("change", (event) => {
+    const select = event.target as HTMLSelectElement;
+    if (!selects.includes(select)) return;
     const language = select.value;
     if (!isLanguage(language) || language === current()) return;
+    sync(language);
 
     const content = document.querySelector(Navigation.content.selector);
     const target = content ? anchor(content) : undefined;

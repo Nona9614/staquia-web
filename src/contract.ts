@@ -142,7 +142,7 @@ export const CodeLanguage = {
   root: data("language"),
   /** On any element: the space-separated languages it is shown for (`[data-lang~="rust"]`). */
   variant: data("lang"),
-  /** The global `<select>` in the header that chooses the language. */
+  /** The global `<select>` in the header that chooses the language (two of them: full and short names). */
   switch: className("language-switch"),
   /** A code block, one variant per language. */
   block: className("code-block"),
