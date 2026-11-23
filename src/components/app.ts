@@ -1,5 +1,6 @@
 import Component from "./component.ts";
 import Header from "./layout/header.ts";
+import LanguageBoot from "./layout/language-boot.ts";
 import Navigator from "./layout/navigator.ts";
 import Content from "./layout/content.ts";
 import { pages, type Page } from "../types/page.ts";
@@ -15,6 +16,6 @@ export default class App extends Component {
   }
 
   render(): string {
-    return `${new Header()}${new Navigator(this.current)}${new Content(this.current)}`;
+    return `${new LanguageBoot()}${new Header()}${new Navigator(this.current)}${new Content(this.current)}`;
   }
 }

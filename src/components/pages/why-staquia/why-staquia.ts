@@ -2,6 +2,7 @@ import Component from "../../component.ts";
 import CodeBlock from "../../shared/code-block.ts";
 import Link from "../../shared/link.ts";
 import Note from "../../shared/note.ts";
+import { lang } from "../../shared/lang.ts";
 
 const good = (text: string) => `<span class="verdict--good">${text}</span>`;
 const bad = (text: string) => `<span class="verdict--bad">${text}</span>`;
@@ -110,7 +111,13 @@ export default class WhyStaquia extends Component {
     const moved = list.move(id, previousId, nextId);
     if (moved.ok) save(item); // One row
     else if (moved.error.type === "position") rebalance(); // Rare, and you decide when
-  `)}
+  `, { rust: `
+    match list.move_to(&id, previous, next) {
+        Ok(moved) => save(moved.value()), // One row
+        Err(LexicalError::Position(_)) => rebalance(list)?, // Rare, and you decide when
+        Err(error) => return Err(error.into()),
+    }
+  ` })}
   <section class="text-block">
     <h4>5. Your own alphabet</h4>
     <p>
@@ -125,8 +132,9 @@ export default class WhyStaquia extends Component {
     </p>
     <h4>7. Light</h4>
     <p>
-      Zero dependencies, a single ES module, and positions are plain data objects: they keep no reference to the system or the list,
-      so nothing stays alive longer than you need it.
+      ${lang(`Zero dependencies, a single ES module, and positions are plain data objects: they keep no reference to the system or the list,
+      so nothing stays alive longer than you need it.`, { rust: `Zero dependencies and no <code>unsafe</code> code. Positions are small <code>Copy</code> values on the stack: they
+      keep no reference to the system or the list, and creating one never allocates.` })}
     </p>
     <h3>When Staquia is not the right tool</h3>
     <ul>

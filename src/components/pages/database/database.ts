@@ -2,6 +2,7 @@ import Component from "../../component.ts";
 import CodeBlock from "../../shared/code-block.ts";
 import Link from "../../shared/link.ts";
 import Note from "../../shared/note.ts";
+import { lang } from "../../shared/lang.ts";
 
 export default class Database extends Component {
   render(): string {
@@ -71,8 +72,9 @@ export default class Database extends Component {
       </table>
     </div>
     <p>
-      UTF-8 bytes keep the order of the unicode values, and JavaScript compares the same values as long as the digits are in the
-      Basic Multilingual Plane (up to <code>U+FFFF</code>). That's why the library and the database always agree. Each of those
+      UTF-8 bytes keep the order of the unicode values, ${lang("and JavaScript compares the same values as long as the digits are in the", { rust:
+      "Rust compares strings by those same bytes, and the systems only use digits of the" })}
+      Basic Multilingual Plane (up to <code>U+FFFF</code>)${lang("", { rust: ", where JavaScript agrees too" })}. That's why the library and the database always agree. Each of those
       characters takes at most <code>3</code> bytes, so a default position takes at most <code>60</code> bytes.
     </p>
     <h3>Reading</h3>
@@ -83,11 +85,16 @@ export default class Database extends Component {
 
     const list = new LexicalList(system);
     const loaded = list.set(rows); // Verifies the order with one comparison per row
-  `)}
+  `, { rust: `
+    // SELECT * FROM tasks WHERE list_id = $1 ORDER BY position
+    let rows: Vec<Task> = db.query(SQL, (list_id,))?;
+    let mut list = LexicalList::new(system);
+    list.set(rows)?; // Verifies the order with one comparison per row
+  ` })}
   <section class="text-block">
     <p>
-      If the collation is not binary, <code>set</code> fails with a <code>"not-ordered"</code> error instead of building a wrong list.
-      Fix the collation: the <code>untrusted</code> option would hide the problem and rewrite positions on every load.
+      If the collation is not binary, <code>set</code> fails with a ${lang(`<code>"not-ordered"</code>`, { rust: "<code>NotOrdered</code>" })} error instead of building a wrong list.
+      Fix the collation: ${lang("the <code>untrusted</code> option", { rust: "<code>set_untrusted</code>" })} would hide the problem and rewrite positions on every load.
     </p>
     <h3>Writing</h3>
     <p>Every operation of the list tells you which rows to save. In the usual case it is exactly one:</p>
@@ -105,8 +112,8 @@ export default class Database extends Component {
   <section class="text-block">
     <h3>Rebalancing</h3>
     <p>
-      When many moves land in the same gap, a move fails with a <code>"position"</code> error (see ${new Link("maths")}). Space the
-      positions again with <code>sort</code> and save the affected rows in <b>one transaction</b>:
+      When many moves land in the same gap, a move fails with a ${lang(`<code>"position"</code>`, { rust: "<code>LexicalError::Position</code>" })} error (see ${new Link("maths")}). Space the
+      positions again with ${lang("<code>sort</code>", { rust: "<code>rebalance</code>" })} and save the affected rows in <b>one transaction</b>:
     </p>
   </section>
   ${new CodeBlock("database-rebalance", "javascript", `
@@ -119,13 +126,19 @@ export default class Database extends Component {
         }
       });
     }
-  `)}
+  `, { rust: `
+    let mut tx = db.transaction()?;
+    for item in list.rebalance()? {
+        tx.execute("UPDATE tasks SET position = $1 WHERE id = $2", (item.position().to_string(), item.id()))?;
+    }
+    tx.commit()?;
+  ` })}
   <section class="text-block">
     <h3>Restoring deleted items</h3>
     <p>
       With a <i>soft delete</i> (a <code>deleted_at</code> column) the item keeps its position, so restoring it puts it back exactly
       where it was, with a single write. If another item took the same position meanwhile, the unique constraint rejects the restore:
-      load the rows together with the restored one using the <code>untrusted</code> option (see below). The restored item gets a new
+      load the rows together with the restored one using ${lang("the <code>untrusted</code> option", { rust: "<code>set_untrusted</code>" })} (see below). The restored item gets a new
       position right after the other one, and it is the only row to save.
     </p>
     <h3>Concurrent users</h3>
@@ -135,14 +148,14 @@ export default class Database extends Component {
     </p>
     <p>
       Without the constraint (or when merging old offline data), the duplicates reach the list. A normal <code>set</code> refuses them
-      with a <code>"not-ordered"</code> error, and <code>set(rows, { untrusted: true })</code> repairs them: the first row keeps its
+      with a ${lang(`<code>"not-ordered"</code>`, { rust: "<code>NotOrdered</code>" })} error, and ${lang("<code>set(rows, { untrusted: true })</code>", { rust: "<code>set_untrusted(rows)</code>" })} repairs them: the first row keeps its
       position and the others get new positions right after it. Only the repaired rows are returned to be saved.
     </p>
     <h3>Validating on the server</h3>
     <p>
       Positions coming from the browser are user input. Before storing one, rebuild it on the server with <code>forge</code>: a
-      character that is not a digit of the system fails with an <code>InvalidCharacterError</code>, and a position that is too long
-      fails with an <code>OverflowError</code>. Always use parameterized queries.
+      character that is not a digit of the system fails with ${lang("an <code>InvalidCharacterError</code>", { rust: "<code>PositionError::InvalidCharacter</code>" })}, and a position that is too long
+      fails with ${lang("an <code>OverflowError</code>", { rust: "<code>PositionError::Overflow</code>" })}. Always use parameterized queries.
     </p>
   </section>
   ${new CodeBlock("database-validate", "javascript", `
@@ -150,7 +163,13 @@ export default class Database extends Component {
     if (!forged.ok && !(forged.error instanceof ThresholdReachedError)) {
       return reply.status(400).send("Invalid position");
     }
-  `)}
+  `, { rust: `
+    match system.forge(&body.position) {
+        // A position over the threshold is still valid
+        Ok(_) | Err(PositionError::ThresholdReached { .. }) => {}
+        Err(_) => return Err(StatusCode::BAD_REQUEST),
+    }
+  ` })}
   ${new Note(`
     The same applies to any storage that sorts strings: a key-value store with ordered keys, an index in the browser
     (<code>IndexedDB</code>), or a plain <code>array.sort()</code> by the <code>position</code> field. See ${new Link("example")} for the

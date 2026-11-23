@@ -1,6 +1,7 @@
 import Component from "../../component.ts";
 import Link from "../../shared/link.ts";
 import Note from "../../shared/note.ts";
+import { lang } from "../../shared/lang.ts";
 import StaquiaList from "../../shared/staquia-list.ts";
 import { playgroundSystem, playgroundItemsCount } from "../../../data/examples.ts";
 
@@ -69,8 +70,9 @@ export default class Maths extends Component {
     <p>
       There is an <span class="teal">overflow</span> when there is no valid position to return: a generated position is longer
       than the maximum (<code>l &gt; l<sub>max</sub></code>), or <span class="n">N</span> is already at its last value for
-      <code>next</code> (or its first one for <code>previous</code>). <span class="teal">Staquia</span> returns an
-      <code class="ichor">OverflowError</code> so you can handle it.
+      <code>next</code> (or its first one for <code>previous</code>). <span class="teal">Staquia</span> returns ${lang(`an
+      <code class="ichor">OverflowError</code>`, { rust: `a <code class="ichor">PositionError::Overflow</code> (or
+      <code class="ichor">EdgeReached</code> for <span class="n">N</span>)` })} so you can handle it.
     </p>
   </section>
   <section class="text-block">
@@ -83,7 +85,7 @@ export default class Maths extends Component {
     </p>
     <p>
       When a position's length <b>reaches</b> <code>l<sub>ϰ</sub></code>, the result fails with a
-      <code class="ichor">ThresholdReachedError</code>. The position is still valid and comes inside the error, but it is time
+      ${lang(`<code class="ichor">ThresholdReachedError</code>`, { rust: `<code class="ichor">PositionError::ThresholdReached</code>` })}. The position is still valid and comes inside the error, but it is time
       to space the positions again (see ${new Link("error-handling")}).
     </p>
     <p>By default the <i class="teal">factor kappa</i> is <code>0.15</code>.</p>

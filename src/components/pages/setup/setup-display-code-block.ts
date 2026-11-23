@@ -20,23 +20,26 @@ export default class SetupDisplayCodeBlock extends Component {
 
   render(): string {
     const values = bindings(this.values);
-    // Placeholders like __ln__ are highlighted as identifiers (or inside strings), then replaced by bound values
+    const bound = (key: string, kind = "") => `<span${kind ? ` class="${kind}"` : ""} ${SetupApp.bind.attr(key)}>${escape(values[key]!)}</span>`;
+    // Placeholders like __ln__ are highlighted as identifiers (or inside strings), then replaced by bound values.
+    // Rust chars ('__rust_zero__') are not char literals for the highlighter, so they are colored as strings here.
     const bind = (html: string) =>
       html
-        .replace(/<span class="(?:variable|constant)">__([\wϰ-]+)__<\/span>/gu, (_, key: string) => `<span class="number" ${SetupApp.bind.attr(key)}>${escape(values[key]!)}</span>`)
-        .replace(/__([\wϰ-]+)__/gu, (_, key: string) => `<span ${SetupApp.bind.attr(key)}>${escape(values[key]!)}</span>`);
-
+        .replace(/'<span class="variable">__(rust_\w+)__<\/span>'/g, (_, key: string) => `<span class="string">'${bound(key)}'</span>`)
+        .replace(/<span class="(?:variable|constant)">__([\wϰ-]+)__<\/span>/gu, (_, key: string) => bound(key, "number"))
+        .replace(/__([\wϰ-]+)__/gu, (_, key: string) => bound(key));
+    const resilience = `
+      // System resilience:
+      // lmax = __lmax__ (overflow above this length)
+      // lϰ = __lϰ__ (threshold at this length)
+      // hmax = __hmax__ (halvings per digit)
+      // __gap-min__ to __gap-max__ moves fit into the same gap`;
     return `${new CodeBlock(
       "setup-display",
       "javascript",
       `
       import Staquia from "staquia";
-
-      // System resilience:
-      // lmax = __lmax__ (overflow above this length)
-      // lϰ = __lϰ__ (threshold at this length)
-      // hmax = __hmax__ (halvings per digit)
-      // __gap-min__ to __gap-max__ moves fit into the same gap
+      ${resilience}
       const system = Staquia.create(
         "__zero__", // zero
         "__first__", // first
@@ -46,7 +49,21 @@ export default class SetupDisplayCodeBlock extends Component {
         __fϰ__, // fϰ
       );
       `,
-      bind,
+      {
+        transform: bind,
+        rust: `
+      use staquia::Staquia;
+      ${resilience}
+      let system = Staquia::create(
+          '__rust_zero__', // zero
+          '__rust_first__', // first
+          '__rust_last__', // last
+          __ln__, // ln
+          __lz__, // lz
+          __rust_threshold__, // fϰ
+      )?;
+      `,
+      },
     )}`;
   }
 }

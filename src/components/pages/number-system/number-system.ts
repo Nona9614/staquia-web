@@ -47,7 +47,12 @@ export default class NumberSystem extends Component {
     // 20 × 27⁴ + 24 × 27³ + 21 × 27² + 18 × 27¹ + 14 × 27⁰ = 11 117 021
     // Eight digits in base 10, only five in base 27
     let number = "txurn";
-  `)}
+  `, { rust: `
+    // t = 20, x = 24, u = 21, r = 18 and n = 14, so "txurn" is the number
+    // 20 × 27⁴ + 24 × 27³ + 21 × 27² + 18 × 27¹ + 14 × 27⁰ = 11 117 021
+    // Eight digits in base 10, only five in base 27
+    let number = "txurn";
+  ` })}
   <section class="text-block">
     <p>
       If this doesn't make sense yet, don't worry. Keep reading, the next chapter shows how these numbers are used as

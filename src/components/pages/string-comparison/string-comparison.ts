@@ -25,7 +25,14 @@ export default class StringComparison extends Component {
     let z = "z";
     // Prints true, as 0x61 < 0x7A
     console.log(a < z);
-  `)}
+  `, { rust: String.raw`
+    // "a" is the unicode character "a", its number is 0x61
+    let a = "a";
+    // "z" is the unicode character "z", its number is 0x7A
+    let z = "z";
+    // Prints true, as 0x61 < 0x7A
+    println!("{}", a < z);
+  ` })}
   <section class="text-block">
     <p>
       So <code>a</code> and <code>z</code> can be treated as numbers. They will become the digits of a ${new Link("number-system")},

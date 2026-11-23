@@ -1,6 +1,7 @@
 import { hydrateNavigation } from "./navigation.ts";
 import { hydrateCopyButtons } from "./copy-buttons.ts";
 import { hydrateSetupApp } from "./setup-app.ts";
+import { hydrateLanguage } from "./language.ts";
 import StaquiaListElement from "./staquia-list.element.ts";
 import { StaquiaList } from "../contract.ts";
 
@@ -15,6 +16,7 @@ export function hydrate(): void {
   hydrateNavigation();
   hydrateCopyButtons();
   hydrateSetupApp();
+  hydrateLanguage();
   // Upgrades the <staquia-list> elements already in the HTML
   customElements.define(StaquiaList.tag, StaquiaListElement);
 }

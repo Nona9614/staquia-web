@@ -3,6 +3,7 @@ import CodeBlock from "../../shared/code-block.ts";
 import Link from "../../shared/link.ts";
 import Note from "../../shared/note.ts";
 import Boxes from "../../shared/boxes.ts";
+import { lang } from "../../shared/lang.ts";
 
 export default class Segments extends Component {
   render(): string {
@@ -28,7 +29,15 @@ export default class Segments extends Component {
 
     // The first position: N is the middle digit repeated, Z is a zero
     const start = system.start(); // "mmmmm!" → N = "mmmmm", Z = "!"
-  `)}
+  `, { rust: `
+    use staquia::Staquia;
+
+    // The alphabet: zero '!', digits 'a' to 'z', ln = 5, lz = 15
+    let system = Staquia::create('!', 'a', 'z', 5, 15, 0.15)?;
+
+    // The first position: N is the middle digit repeated, Z is a zero
+    let start = system.start()?; // "mmmmm!" → N = "mmmmm", Z = "!"
+  ` })}
   <section class="text-block">
     <h3>Segment <span class="n">N</span></h3>
     <p>
@@ -54,7 +63,18 @@ export default class Segments extends Component {
     // Subtract 1 and turn it back into a string
     let c = String.fromCharCode(d - 1);
     console.log(c); // "c", the previous character before "d"
-  `)}
+  `, { rust: `
+    // The unicode number of "d", as a byte
+    let d = b'd';
+
+    // Add 1 and turn it back into a character
+    let e = (d + 1) as char;
+    println!("{e}"); // "e", the next character after "d"
+
+    // Subtract 1 and turn it back into a character
+    let c = (d - 1) as char;
+    println!("{c}"); // "c", the previous character before "d"
+  ` })}
   <section class="text-block">
     <p>Staquia does the same over the whole segment, carrying to the next digit when needed:</p>
   </section>
@@ -64,11 +84,18 @@ export default class Segments extends Component {
 
     // The start is the middle of N, so there is room to stack on both sides
     system.next(system.forge("!!!!a")); // "!!!!b!"
-  `)}
+  `, { rust: `
+    system.next(&start)?; // "mmmmn!"
+    system.previous(&start)?; // "mmmml!"
+
+    // The start is the middle of N, so there is room to stack on both sides
+    system.next(&system.forge("!!!!a")?)?; // "!!!!b!"
+  ` })}
   <section class="text-block">
     <p>
       Since <span class="n">N</span> has a fixed length, it has a last value (<span class="teal">zzzzz</span>) and a first one
-      (<span class="teal">!!!!!</span>). Stacking past them fails with an <code class="ichor">OverflowError</code>, see
+      (<span class="teal">!!!!!</span>). Stacking past them fails with an
+      ${lang(`<code class="ichor">OverflowError</code>`, { rust: `<code class="ichor">PositionError::EdgeReached</code>` })}, see
       ${new Link("error-handling")}.
     </p>
     <p>
@@ -96,7 +123,14 @@ export default class Segments extends Component {
     // Sum both values, divide them by 2 and round upwards
     let average = Math.ceil((a + z) / 2);
     console.log(String.fromCharCode(average)); // "n", the middle of "a" and "z"
-  `)}
+  `, { rust: `
+    let a = b'a';
+    let z = b'z';
+
+    // Sum both values, divide them by 2 and round upwards
+    let average = (a + z).div_ceil(2);
+    println!("{}", average as char); // "n", the middle of "a" and "z"
+  ` })}
   <section class="text-block">
     <p>
       In Staquia the function that finds a position between two others is <code>core</code>. When <span class="n">N</span> still
@@ -109,7 +143,13 @@ export default class Segments extends Component {
 
     // "mmmmm!" and "mmmmn!" are adjacent, Z takes the middle
     system.core(start, system.next(start)); // "mmmmmn"
-  `)}
+  `, { rust: `
+    // There is room in N between "a!!!!!" and "b!!!!!"
+    system.core(&system.forge("a")?, &system.forge("b")?)?; // "ammmn!"
+
+    // "mmmmm!" and "mmmmn!" are adjacent, Z takes the middle
+    system.core(&start, &system.next(&start)?)?; // "mmmmmn"
+  ` })}
   <section class="text-block">
     <h3>Summary</h3>
     <p>

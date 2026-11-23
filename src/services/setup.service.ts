@@ -109,8 +109,23 @@ export function changeField(values: Readonly<SetupValues>, field: string, raw: s
  */
 export function bindings(values: Readonly<SetupValues>): Record<string, string | number> {
   const { lmax, lϰ, hmax, gap } = resilience(values);
-  return { ...values, lmax, lϰ, hmax, "gap-min": gap.min, "gap-max": gap.max };
+  return {
+    ...values,
+    lmax,
+    lϰ,
+    hmax,
+    "gap-min": gap.min,
+    "gap-max": gap.max,
+    // The Rust sample: char literals and an f64 literal
+    rust_zero: rustChar(values.zero),
+    rust_first: rustChar(values.first),
+    rust_last: rustChar(values.last),
+    rust_threshold: Number.isInteger(values.fϰ) ? values.fϰ.toFixed(1) : String(values.fϰ),
+  };
 }
+
+/** The inside of a Rust char literal: `'` and `\` are escaped. */
+const rustChar = (character: string) => character.replace(/['\\]/g, "\\$&");
 
 /**
  * Calculates the resilience values of a setup.

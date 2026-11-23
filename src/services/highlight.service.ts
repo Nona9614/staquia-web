@@ -1,5 +1,5 @@
 /** The languages the code samples are written in. */
-export type Language = "javascript" | "typescript" | "html" | "bash" | "sql";
+export type Language = "javascript" | "typescript" | "rust" | "html" | "bash" | "sql";
 
 const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const span = (kind: string, text: string) => `<span class="${kind}">${escapeHtml(text)}</span>`;
@@ -80,6 +80,77 @@ function script(code: string): string {
   return html;
 }
 
+/** Rust keywords that change the flow of the code (purple in VS Code), `?` included. */
+const rustControl = new Set(["use", "return", "if", "else", "match", "for", "in", "while", "loop", "break", "continue", "await", "async"]);
+/** Rust declaration and value keywords (blue in VS Code). */
+const rustKeywords = new Set([
+  "let", "mut", "fn", "struct", "enum", "impl", "trait", "type", "pub", "const", "static", "mod", "crate", "self",
+  "Self", "super", "where", "as", "ref", "move", "dyn", "true", "false", "unsafe",
+]);
+/** Rust built-in types, colored like any other type. */
+const rustPrimitives = new Set([
+  "u8", "u16", "u32", "u64", "u128", "usize", "i8", "i16", "i32", "i64", "i128", "isize", "f32", "f64", "bool",
+  "char", "str",
+]);
+/** The enum variants of the prelude. */
+const rustVariants = new Set(["Some", "None", "Ok", "Err"]);
+
+/**
+ * Rust, with the token kinds of VS Code (rust-analyzer semantic highlighting) mapped to the classes of `script`:
+ * `type` (types and modules), `interface` (traits, in the C# color), `constant` (enum variants and `CONSTANTS`),
+ * `function` (functions and macros), `variable` (bindings, fields and parameters), `control` (`?` included).
+ *
+ * @remarks
+ * Like `script`, it is not a parser: the traits are the names after `impl` or `trait` in the sample (and `Item`),
+ * everything else is decided by the neighbor tokens.
+ */
+function rust(code: string): string {
+  const token = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|(b?"(?:[^"\\]|\\.)*"|b?'(?:[^'\\\n]|\\.)')|(\b\d[\d_]*(?:\.\d[\d_]*)?(?:[ui](?:8|16|32|64|128|size)|f32|f64)?\b)|([A-Za-z_][\w]*!?)|([()[\]{}])|([^])/gu;
+  const traits = new Set(["Item"]);
+  for (const [, name] of code.matchAll(/\b(?:impl|trait)\s+(?:<[^>]*>\s*)?([A-Z]\w*)/g)) traits.add(name!);
+  let depth = 0;
+  let previous = "";
+  /** The word before the previous `::`, to tell `Enum::Variant` from `Type::function`. */
+  let path = "";
+  let html = "";
+
+  for (const match of code.matchAll(token)) {
+    const [text, comment, string, number, word, bracket] = match;
+    const rest = code.slice(match.index + text.length);
+    if (comment) html += span("comment", text);
+    else if (string) html += span("string", text);
+    else if (number) html += span("number", text);
+    else if (bracket) {
+      if ("([{".includes(text)) html += span(`bracket-${depth++ % 3}`, text);
+      else html += span(`bracket-${(depth = Math.max(0, depth - 1)) % 3}`, text);
+    } else if (word) {
+      let kind: string;
+      const afterPath = previous === "::";
+      if (word.endsWith("!")) kind = "function";
+      // `impl Trait for Type` declares, it is not a loop
+      else if (word === "for" && /\bimpl\b[^{;]*$/.test(code.slice(0, match.index))) kind = "keyword";
+      else if (rustControl.has(word)) kind = "control";
+      else if (rustKeywords.has(word)) kind = "keyword";
+      else if (rustPrimitives.has(word)) kind = "type";
+      else if (previous === "fn") kind = "function";
+      else if (previous === ".") kind = /^\s*\(/.test(rest) ? "function" : "variable";
+      else if (/^\s*::/.test(rest)) kind = traits.has(word) ? "interface" : "type";
+      else if (/^[A-Z][A-Z\d_]+$/.test(word) || rustVariants.has(word)) kind = "constant";
+      else if (/^[A-Z]/.test(word)) {
+        if (afterPath && /^[A-Z]/.test(path)) kind = "constant";
+        else kind = traits.has(word) ? "interface" : "type";
+      } else if (/^\s*\(/.test(rest)) kind = "function";
+      else kind = "variable";
+      html += span(kind, word);
+      if (/^\s*::/.test(rest)) path = word;
+    } else {
+      html += text === "?" ? span("control", text) : escapeHtml(text);
+    }
+    if (!/^\s$/.test(text)) previous = text === ":" && previous === ":" ? "::" : text;
+  }
+  return html;
+}
+
 /** Shell: comments and the command name of each line. */
 function bash(code: string): string {
   return code
@@ -133,6 +204,8 @@ export function highlight(code: string, language: Language): string {
     case "javascript":
     case "typescript":
       return script(code);
+    case "rust":
+      return rust(code);
     case "bash":
       return bash(code);
     case "html":

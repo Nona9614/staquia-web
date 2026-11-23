@@ -2,6 +2,7 @@ import Component from "../../component.ts";
 import ApiButton from "../../shared/api-button.ts";
 import Link from "../../shared/link.ts";
 import Note from "../../shared/note.ts";
+import { lang, only } from "../../shared/lang.ts";
 import SetupApp from "./setup-app.ts";
 import SetupDisplayCodeBlock from "./setup-display-code-block.ts";
 
@@ -49,10 +50,13 @@ export default class Setup extends Component {
     <p>This is the <code>javascript</code> code for your number system:</p>
   </section>
   ${new SetupDisplayCodeBlock()}
+  ${only("rust", `${new Note(`
+    In Rust, <code>ln + lz</code> can be at most <code>32</code> (<code>staquia::MAX_LENGTH</code>): positions are
+    <code>Copy</code> values on the stack, and <code>Staquia::create</code> returns a <code>CreateError</code> above it.`)}`)}
   ${new Note(`
     Changing the configuration of a system that already has stored positions changes the meaning of their digits. To migrate
     them, read the rows sorted by their old position, clear their positions and load them into a list of the new system with
-    the <code>untrusted</code> option: every row gets a new position keeping the same order.`)}
+    ${lang("the <code>untrusted</code> option", { rust: "<code>set_untrusted</code>" })}: every row gets a new position keeping the same order.`)}
   <section class="text-block">
     <h3>Thank you and Summary</h3>
     <p>

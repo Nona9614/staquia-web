@@ -4,7 +4,8 @@ import Link from "../../shared/link.ts";
 import DocsButton from "../../shared/docs-button.ts";
 import ApiButton from "../../shared/api-button.ts";
 import StaquiaList from "../../shared/staquia-list.ts";
-import { version } from "../../../data/app.ts";
+import { crateVersion, version } from "../../../data/app.ts";
+import { lang, only } from "../../shared/lang.ts";
 
 export default class GetStarted extends Component {
   render(): string {
@@ -36,7 +37,11 @@ export default class GetStarted extends Component {
   ${new CodeBlock("install-npm", "bash", `
     # Install it with npm (or pnpm, yarn...)
     npm install staquia@${version}
-  `)}
+  `, { rust: { language: "bash", code: `
+    # Add the crate to Cargo.toml
+    cargo add staquia@${crateVersion}
+  ` } })}
+  ${only("javascript", `
   <section class="text-block">
     <p>The library has <b>zero dependencies</b> and is shipped as an <b>ES module</b>. In the browser you can also import it directly from a CDN:</p>
   </section>
@@ -44,10 +49,20 @@ export default class GetStarted extends Component {
     <script type="module">
       import Staquia, { LexicalList } from "https://cdn.jsdelivr.net/npm/staquia@${version}/+esm";
     </script>
-  `)}
+  `)}`)}
+  ${only("rust", `
+  <section class="text-block">
+    <p>
+      The crate has <b>zero dependencies</b> and no <code>unsafe</code> code. It creates <b>the same positions</b> as the
+      JavaScript library, so a Rust server and a JavaScript app can share the same rows.
+    </p>
+  </section>`)}
   <section class="text-block">
     <h3>Quick start</h3>
-    <p>Give each item a <span class="teal">position</span> and let a <code>LexicalList</code> keep them in sync:</p>
+    <p>
+      Give each item a <span class="teal">position</span> and let a <code>LexicalList</code> keep them in sync${lang("", { rust: ` (your type
+      implements the <code>Item</code> trait)` })}:
+    </p>
   </section>
   ${new CodeBlock("quick-start", "javascript", `
     import Staquia, { LexicalList } from "staquia";
@@ -69,7 +84,39 @@ export default class GetStarted extends Component {
     if (moved.ok) {
       // Only bread.position changed, save only that item
     }
-  `)}
+  `, { rust: `
+    use staquia::{Item, LexicalList, Position, Staquia};
+
+    // Any type with an id and a position field
+    struct Product {
+        id: u32,
+        text: String,
+        position: String,
+    }
+
+    impl Item for Product {
+        type Id = u32;
+        fn id(&self) -> &u32 { &self.id }
+        fn position(&self) -> &str { &self.position }
+        fn set_position(&mut self, position: &Position) { self.position = position.to_string(); }
+    }
+
+    fn main() -> Result<(), staquia::Error<u32>> {
+        // The default number system, ready for production
+        let system = Staquia::default();
+        let mut list = LexicalList::new(system);
+
+        list.push(Product { id: 1, text: "Milk".into(), position: String::new() })?;
+        list.push(Product { id: 2, text: "Meat".into(), position: String::new() })?;
+        list.push(Product { id: 3, text: "Bread".into(), position: String::new() })?;
+
+        // Move the bread between the milk and the meat
+        let moved = list.move_to(&3, Some(&1), Some(&2))?;
+        // Only the bread's position changed, save only that item
+        println!("{}", moved.value().position);
+        Ok(())
+    }
+  ` })}
   <section class="text-block">
     <p>
       To understand how it works, continue with the ${new Link("introduction")} chapter or open the ${new DocsButton()} from here.

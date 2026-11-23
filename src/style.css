@@ -760,7 +760,8 @@ article {
 }
 
 .code-block__typescript,
-.code-block__javascript {
+.code-block__javascript,
+.code-block__rust {
   .control {
     color: var(--color-code-control);
   }
@@ -805,6 +806,47 @@ article {
   .attribute {
     color: var(--color-code-variable);
   }
+}
+
+/* Code language ------------------------------------------------------------
+ * The CSS that hides the other languages is generated from `CodeLanguage` (contract.ts) by
+ * components/layout/language-boot.ts. Here only the look of the <select> switches.
+ */
+
+.language-switch {
+  flex: 0 0 auto;
+  cursor: pointer;
+  margin: 0;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.375rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.2;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--palette-teal-deep);
+  }
+}
+
+/* In the header: outlined like the GitHub button, with its height, following the theme */
+.header .language-switch {
+  height: var(--size-header-button);
+  border: var(--size-divider) solid var(--color-border);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  /* The opened list follows the theme too */
+  color-scheme: light dark;
+}
+
+/* In the menu of a code block: in place of the language title, on the light menu bar of both themes */
+.code-block__menu .language-switch {
+  margin: 0.5rem 0 0.5rem 1rem;
+  border: 1px solid var(--palette-charcoal-dark);
+  color: #1e1e1e;
+  background-color: var(--palette-grey-light);
+  color-scheme: light;
+  font-size: 15px;
 }
 
 /* Table ------------------------------------------------------------------- */
