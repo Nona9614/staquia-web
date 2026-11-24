@@ -29,5 +29,6 @@ export const languages: Readonly<Record<CodeLanguageName, Readonly<LanguageLinks
     version: "0.1.0",
     api: "https://docs.rs/staquia",
     package: "https://crates.io/crates/staquia",
+    repository: "https://github.com/Nona9614/staquia-rust",
   },
 };
