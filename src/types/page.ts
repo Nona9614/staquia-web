@@ -3,6 +3,7 @@ export const pages = [
   "get-started",
   "introduction",
   "why-staquia",
+  "comparison",
   "strings",
   "number-system",
   "positions",
@@ -11,6 +12,7 @@ export const pages = [
   "maths",
   "error-handling",
   "example",
+  "drag-and-drop",
   "database",
   "setup",
 ] as const;

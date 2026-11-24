@@ -12,6 +12,8 @@ import ErrorHandling from "../pages/error-handling/error-handling.ts";
 import Example from "../pages/example/example.ts";
 import WhyStaquia from "../pages/why-staquia/why-staquia.ts";
 import Database from "../pages/database/database.ts";
+import Comparison from "../pages/comparison/comparison.ts";
+import DragAndDrop from "../pages/drag-and-drop/drag-and-drop.ts";
 import Setup from "../pages/setup/setup.ts";
 import { pages, type Page } from "../../types/page.ts";
 import { Navigation } from "../../contract.ts";
@@ -21,6 +23,7 @@ const views: Record<Page, new () => Component> = {
   "get-started": GetStarted,
   introduction: Introduction,
   "why-staquia": WhyStaquia,
+  comparison: Comparison,
   strings: StringComparison,
   "number-system": NumberSystem,
   positions: Positions,
@@ -29,6 +32,7 @@ const views: Record<Page, new () => Component> = {
   maths: Maths,
   "error-handling": ErrorHandling,
   example: Example,
+  "drag-and-drop": DragAndDrop,
   database: Database,
   setup: Setup,
 };

@@ -11,4 +11,11 @@ export const shortTitles: Partial<Record<Page, string>> = {
   "number-system": "Numbers",
   reinsertions: "Reinsert",
   "error-handling": "Errors",
+  comparison: "Compare",
+  "drag-and-drop": "Drag",
+};
+
+/** Full titles for the pages whose id doesn't give them (every word of the id is capitalized otherwise). */
+export const titles: Partial<Record<Page, string>> = {
+  "drag-and-drop": "Drag and Drop",
 };

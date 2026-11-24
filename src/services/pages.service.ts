@@ -1,5 +1,5 @@
 import { pages, type Page } from "../types/page.ts";
-import { shortTitles } from "../data/pages.ts";
+import { shortTitles, titles } from "../data/pages.ts";
 
 /**
  * Transforms a page name into its title, e.g. `number-system` into `Number System`.
@@ -7,6 +7,8 @@ import { shortTitles } from "../data/pages.ts";
  * @param page - The page to be transformed.
  */
 export function title(page: Page): string {
+  const custom = titles[page];
+  if (custom) return custom;
   return page
     .split("-")
     .map((word) => word[0]!.toUpperCase() + word.substring(1))
