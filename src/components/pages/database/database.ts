@@ -77,6 +77,68 @@ export default class Database extends Component {
       Basic Multilingual Plane (up to <code>U+FFFF</code>)${lang("", { rust: ", where JavaScript agrees too" })}. That's why the library and the database always agree. Each of those
       characters takes at most <code>3</code> bytes, so a default position takes at most <code>60</code> bytes.
     </p>
+    <h3>With an ORM</h3>
+    <p>
+      Declare the position as a plain string of at most <code>20</code> characters, and write the binary collation and the
+      <code>DEFERRABLE</code> unique constraint of the table above in a SQL migration: most ORMs can't describe them in their schema.
+    </p>
+    <ul>
+      <li>
+        <b><a href="https://www.prisma.io/docs/orm/prisma-migrate">Prisma</a>:</b> <code>position String @db.VarChar(20)</code>, then
+        create the migration with <code>prisma migrate dev --create-only</code> and add the collation and the constraint to its SQL
+        before applying it.
+      </li>
+      <li>
+        <b><a href="https://orm.drizzle.team/docs/kit-custom-migrations">Drizzle</a>:</b>
+        <code>position: varchar("position", { length: 20 }).notNull()</code>, and the collation and the constraint in a custom
+        migration made with <code>drizzle-kit generate --custom</code>.
+      </li>
+      <li>
+        <b><a href="https://github.com/launchbadge/sqlx">SQLx</a> (Rust):</b> its migrations are plain SQL, so the table above is the
+        migration (<code>sqlx migrate add tasks</code>), and the position is a <code>String</code> in your queries.
+      </li>
+    </ul>
+  </section>
+  ${new CodeBlock("database-orm", "sql", `
+    -- The part of the migration the ORM can't write (PostgreSQL)
+    ALTER TABLE tasks ALTER COLUMN position TYPE varchar(20) COLLATE "POSIX";
+    ALTER TABLE tasks ADD CONSTRAINT tasks_position UNIQUE (list_id, position) DEFERRABLE INITIALLY DEFERRED;
+  `)}
+  <section class="text-block">
+    <h3>Migrating an existing list</h3>
+    <p>
+      Coming from an integer index, gaps, floats, fractional indexing or LexoRank? Add the position column, read every list sorted by
+      its old key, and load the rows with an empty position as untrusted: each one gets a Staquia position <b>in the same order</b>.
+      Save them in one transaction, then drop the old column.
+    </p>
+  </section>
+  ${new CodeBlock("database-migrate", "javascript", `
+    // rows: SELECT * FROM tasks WHERE list_id = $1 ORDER BY old_order
+    const list = new LexicalList(Staquia.ascii());
+    const result = list.set(
+      rows.map((row) => ({ ...row, position: "" })),
+      { untrusted: true },
+    );
+    if (result.ok) {
+      const [affected] = result.value; // Every row, in the old order
+      await db.transaction(async (tx) => {
+        for (const item of affected) {
+          await tx.query("UPDATE tasks SET position = $1 WHERE id = $2", [item.position.toString(), item.id]);
+        }
+      });
+    }
+  `, { rust: `
+    // rows: SELECT * FROM tasks WHERE list_id = $1 ORDER BY old_order
+    let mut list = LexicalList::new(Staquia::ascii());
+    let rows = rows.into_iter().map(|row| Task { position: String::new(), ..row }).collect();
+    let mut tx = db.transaction()?;
+    for item in list.set_untrusted(rows)? {
+        // Every row, in the old order
+        tx.execute("UPDATE tasks SET position = $1 WHERE id = $2", (item.position().to_string(), item.id()))?;
+    }
+    tx.commit()?;
+  ` })}
+  <section class="text-block">
     <h3>Reading</h3>
   </section>
   ${new CodeBlock("database-read", "javascript", `
