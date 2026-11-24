@@ -1158,9 +1158,18 @@ article {
   display: grid;
   gap: 1rem;
   grid-template-areas:
+    "menu"
+    "description"
     "characters"
-    "sliders"
-    "menu";
+    "sliders";
+}
+
+.setup-calculator__preset-description {
+  grid-area: description;
+  margin: 0;
+  text-align: center;
+  font-size: var(--font-size-text);
+  color: var(--color-input-label);
 }
 
 .setup-calculator__characters {
@@ -1214,11 +1223,13 @@ article {
   padding: 0;
   grid-area: menu;
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   align-items: center;
   justify-content: center;
 }
 
-.setup-calculator__reset {
+.setup-calculator__preset {
   cursor: pointer;
   font-family: inherit;
   font-size: inherit;
@@ -1230,6 +1241,13 @@ article {
 
   &:hover,
   &:focus-visible {
+    background-color: var(--color-button-hover);
+  }
+
+  /* The selected preset */
+  &[aria-pressed="true"] {
+    outline: 2px solid var(--color-input-border);
+    outline-offset: 2px;
     background-color: var(--color-button-hover);
   }
 }

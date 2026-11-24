@@ -1,6 +1,6 @@
 import setupStore from "../stores/setup.store.ts";
 import { setupChanged } from "../events/app.events.ts";
-import { bindings, changeField } from "../services/setup.service.ts";
+import { applyPreset, bindings, changeField } from "../services/setup.service.ts";
 import { SetupApp } from "../contract.ts";
 
 /**
@@ -13,6 +13,29 @@ export function hydrateSetupApp(): void {
   if (!form) return;
   const binds = document.querySelectorAll<HTMLElement>(SetupApp.bind.selector);
   const dependents = (["base", "last"] as const).map((name) => [name, form.elements.namedItem(name)] as const);
+  // Every input, a preset changes all of them
+  const inputs = (["zero", "first", "last", "base", "ln", "lz", "fϰ"] as const).map((name) => [name, form.elements.namedItem(name)] as const);
+  const buttons = form.querySelectorAll<HTMLButtonElement>(SetupApp.preset.selector);
+  const modes = document.querySelectorAll<HTMLElement>(SetupApp.mode.selector);
+
+  // The preset buttons ("Default" is the form reset, handled below)
+  for (const button of buttons) {
+    if (button.type === "reset") continue;
+    button.addEventListener("click", () => {
+      const change = applyPreset(setupStore.values, button.dataset[SetupApp.preset.key]!);
+      if (!change?.ok) return;
+      for (const input of form.querySelectorAll("input")) {
+        input.setCustomValidity("");
+        input.removeAttribute("aria-invalid");
+        input.title = "";
+      }
+      setupStore.set(change.values);
+      for (const [name, input] of inputs) {
+        if (input instanceof HTMLInputElement) input.value = String(change.values[name]);
+      }
+      setupChanged.trigger(setupStore.values);
+    });
+  }
 
   form.addEventListener("input", (event) => {
     const target = event.target as HTMLInputElement;
@@ -46,6 +69,9 @@ export function hydrateSetupApp(): void {
     for (const [name, input] of dependents) {
       if (input instanceof HTMLInputElement && input !== document.activeElement) input.value = String(values[name]);
     }
+    // The pressed preset and the code that matches it
+    for (const button of buttons) button.setAttribute("aria-pressed", String(button.dataset[SetupApp.preset.key] === values.preset));
+    for (const mode of modes) mode.hidden = (mode.getAttribute(SetupApp.mode.name) === "preset") !== (values.preset !== "");
     const bound = bindings(values);
     for (const element of binds) {
       const value = bound[element.dataset[SetupApp.bind.key]!];

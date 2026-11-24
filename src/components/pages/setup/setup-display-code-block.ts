@@ -34,7 +34,33 @@ export default class SetupDisplayCodeBlock extends Component {
       // lϰ = __lϰ__ (threshold at this length)
       // hmax = __hmax__ (halvings per digit)
       // __gap-min__ to __gap-max__ moves fit into the same gap`;
-    return `${new CodeBlock(
+    const presetCode = new CodeBlock(
+      "setup-display-preset",
+      "javascript",
+      `
+      import Staquia from "staquia";
+      ${resilience}
+      const system = Staquia.__js_preset__({ ln: __ln__, lz: __lz__, fϰ: __fϰ__ });
+      `,
+      {
+        transform: bind,
+        rust: `
+      use staquia::{Options, Staquia};
+      ${resilience}
+      let system = Staquia::create_with_options(Options {
+          ln: __ln__,
+          lz: __lz__,
+          threshold: __rust_threshold__,
+          ..Options::__rust_preset__()
+      })?;
+      `,
+      },
+    );
+    // A preset shows its method, a custom range `Staquia.create` with every character
+    const preset = this.values.preset !== "";
+    return `
+    <div ${SetupApp.mode.attr("preset")}${preset ? "" : " hidden"}>${presetCode}</div>
+    <div ${SetupApp.mode.attr("range")}${preset ? " hidden" : ""}>${new CodeBlock(
       "setup-display",
       "javascript",
       `
@@ -64,6 +90,6 @@ export default class SetupDisplayCodeBlock extends Component {
       )?;
       `,
       },
-    )}`;
+    )}</div>`;
   }
 }

@@ -1,4 +1,4 @@
-import type { SetupValues } from "../data/setup.ts";
+import { presets, type PresetName, type SetupValues } from "../data/setup.ts";
 
 /** The values derived from a setup that tell how resilient the system is. */
 export interface Resilience {
@@ -44,7 +44,8 @@ export function changeCharacter(values: Readonly<SetupValues>, key: "zero" | "fi
   const code = text.codePointAt(0);
   if (code === undefined) return { ok: false, reason: `${key} can't be empty` };
   if (code > MAX_CODE) return { ok: false, reason: "Use characters up to U+FFFF" };
-  const next = { ...values, [key]: String.fromCodePoint(code) };
+  // Editing a character leaves the preset: the system is a custom range
+  const next: SetupValues = { ...values, preset: "", [key]: String.fromCodePoint(code) };
   next.base = next.last.codePointAt(0)! - next.first.codePointAt(0)! + 2;
   return verify(next);
 }
@@ -59,7 +60,7 @@ export function changeBase(values: Readonly<SetupValues>, base: number): SetupCh
   if (!Number.isInteger(base) || base < 3) return { ok: false, reason: "The base must be 3 or bigger" };
   const last = values.first.codePointAt(0)! + base - 2;
   if (last > MAX_CODE) return { ok: false, reason: "Use characters up to U+FFFF" };
-  return verify({ ...values, base, last: String.fromCodePoint(last) });
+  return verify({ ...values, preset: "", base, last: String.fromCodePoint(last) });
 }
 
 /**
@@ -73,6 +74,23 @@ export function changeNumber(values: Readonly<SetupValues>, key: "ln" | "lz" | "
   if (!Number.isFinite(value)) return { ok: false, reason: `${key} must be a number` };
   return { ok: true, values: { ...values, [key]: value } };
 }
+
+/**
+ * Selects a preset: its characters and base, with the default lengths (`ln = 5`, `lz = 15`, `fϰ = 0.15`).
+ *
+ * @param values - The current values.
+ * @param name - The preset name.
+ * @returns The change, or `undefined` if there is no such preset.
+ */
+export function applyPreset(values: Readonly<SetupValues>, name: string): SetupChange | undefined {
+  const preset = presets.find((preset) => preset.name === name);
+  if (!preset) return undefined;
+  const { zero, first, last, base } = preset;
+  return { ok: true, values: { ...values, preset: preset.name, zero, first, last, base, ln: 5, lz: 15, fϰ: 0.15 } };
+}
+
+/** The preset of the values, if any. */
+const presetOf = (name: PresetName | "") => presets.find((preset) => preset.name === name);
 
 /** The names of the Setup App inputs, the same as the `SetupValues` keys. */
 export type SetupField = keyof SetupValues;
@@ -121,6 +139,13 @@ export function bindings(values: Readonly<SetupValues>): Record<string, string |
     rust_first: rustChar(values.first),
     rust_last: rustChar(values.last),
     rust_threshold: Number.isInteger(values.fϰ) ? values.fϰ.toFixed(1) : String(values.fϰ),
+    // The preset: its methods for the code, and what it is for
+    js_preset: presetOf(values.preset)?.js ?? "default",
+    rust_preset: presetOf(values.preset)?.rust ?? "default",
+    "preset-label": presetOf(values.preset)?.label ?? "Custom range",
+    "preset-description":
+      presetOf(values.preset)?.description ??
+      `Every character from '${values.first}' to '${values.last}', and '${values.zero}' as the zero.`,
   };
 }
 

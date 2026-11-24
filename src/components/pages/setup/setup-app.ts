@@ -1,5 +1,5 @@
 import Component, { escape } from "../../component.ts";
-import { setupDefaults, type SetupValues } from "../../../data/setup.ts";
+import { presets, setupDefaults, type SetupValues } from "../../../data/setup.ts";
 import { SetupApp as Contract } from "../../../contract.ts";
 
 /**
@@ -32,16 +32,27 @@ export default class SetupApp extends Component {
     <input id="setup-${name}" name="${name}" type="range" min="${min}" max="${max}"${step ? ` step="${step}"` : ""} value="${this.values[name]}" />`;
   }
 
+  /** The preset buttons: "Default" resets the form, the others apply their preset. */
+  #presets(): string {
+    return presets
+      .map((preset) => {
+        const type = preset.name === "default" ? "reset" : "button";
+        const pressed = this.values.preset === preset.name;
+        return `<button type="${type}" class="setup-calculator__preset" ${Contract.preset.attr(preset.name)} aria-pressed="${pressed}">${escape(preset.label)}</button>`;
+      })
+      .join("");
+  }
+
   render(): string {
     return `
 <form id="${Contract.form.name}" class="setup-calculator">
+  <menu class="setup-calculator__menu" aria-label="Presets">${this.#presets()}
+  </menu>
+  <p class="setup-calculator__preset-description"><b ${Contract.bind.attr("preset-label")}>Default</b>: <span ${Contract.bind.attr("preset-description")}>${escape(presets[0]!.description)}</span></p>
   <div class="setup-calculator__characters">${this.#character("zero")}${this.#character("first")}${this.#character("last")}
   </div>
   <div class="setup-calculator__sliders">${this.#slider("base", 4, 1537)}${this.#slider("ln", 4, 18)}${this.#slider("lz", 8, 38)}${this.#slider("fϰ", 0.1, 0.85, 0.05)}
   </div>
-  <menu class="setup-calculator__menu">
-    <button type="reset" class="setup-calculator__reset">Reset Defaults</button>
-  </menu>
 </form>`;
   }
 }

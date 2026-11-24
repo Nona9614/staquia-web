@@ -91,6 +91,10 @@ export const SetupApp = {
   form: id("setup-calculator"),
   /** An element showing a value from the `bindings` service, the attribute value is its key. */
   bind: data("bind"),
+  /** A preset button, the attribute value is its `PresetName`. */
+  preset: data("preset"),
+  /** The generated code of a mode: `preset` (a preset method) or `range` (`Staquia.create`). */
+  mode: data("setup-mode"),
 } as const;
 
 /** The `<staquia-list>` custom element and its light DOM. */
