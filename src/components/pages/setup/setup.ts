@@ -47,7 +47,7 @@ export default class Setup extends Component {
   </section>
   ${new SetupApp()}
   <section class="text-block">
-    <p>This is the <code>javascript</code> code for your number system:</p>
+    <p>This is the ${lang("<code>JavaScript</code>", { rust: "<code>Rust</code>" })} code for your number system:</p>
   </section>
   ${new SetupDisplayCodeBlock()}
   ${only("rust", `${new Note(`
