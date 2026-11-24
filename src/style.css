@@ -760,9 +760,11 @@ article {
   }
 }
 
+/* HTML blocks too: the code of their <script> elements is highlighted as JavaScript */
 .code-block__typescript,
 .code-block__javascript,
-.code-block__rust {
+.code-block__rust,
+.code-block__html {
   .control {
     color: var(--color-code-control);
   }

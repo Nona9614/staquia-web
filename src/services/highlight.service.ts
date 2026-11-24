@@ -167,8 +167,20 @@ function bash(code: string): string {
     .join("\n");
 }
 
-/** HTML: comments, tags, attributes and their values. */
+/** HTML: the markup, and the code of the `<script>` elements as JavaScript (like VS Code). */
 function html(code: string): string {
+  let out = "";
+  let last = 0;
+  for (const match of code.matchAll(/(<script\b[^>]*>)([\s\S]*?)(?=<\/script>)/g)) {
+    out += markup(code.slice(last, match.index) + match[1]!);
+    out += script(match[2]!);
+    last = match.index + match[0].length;
+  }
+  return out + markup(code.slice(last));
+}
+
+/** HTML markup: comments, tags, attributes and their values. */
+function markup(code: string): string {
   const token = /(<!--[\s\S]*?-->)|(<\/?)([\w-]+)|("[^"]*")|([\w-]+)(?==)|(\/?>)|([^])/g;
   let out = "";
   for (const [text, comment, open, tag, string, attribute, close] of code.matchAll(token)) {
