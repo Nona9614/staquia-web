@@ -114,7 +114,7 @@ export default class ErrorHandling extends Component {
           <tr>
             <td><code>PositionError::</code><br /><code class="ichor">Overflow</code></td>
             <td>Position functions</td>
-            <td>There is no valid position: it would be <code>length</code> digits long, above the <code>limit</code> of the system.</td>
+            <td>There is no valid position, its <code>position</code> field contains the one that failed (<code>length</code> digits long, above the <code>limit</code> of the system).</td>
           </tr>
           <tr>
             <td><code>PositionError::</code><br /><code class="ichor">EdgeReached</code></td>
@@ -238,7 +238,7 @@ export default class ErrorHandling extends Component {
   </section>
   ${only("javascript", `${new Note(`
     There are no event handlers for the threshold or the overflow anymore (<code>onThresholdReached</code> and
-    <code>onOverflow</code> were removed in <code>0.4.0</code>). Every failure is returned and checked synchronously.`)}`)}
+    <code>onOverflow</code> were removed in <code>0.5.0</code>). Every failure is returned and checked synchronously.`)}`)}
 </article>`;
   }
 }
