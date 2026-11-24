@@ -35,7 +35,7 @@ export default class Example extends Component {
       position: string;
     }
 
-    const system = Staquia.create("!", "a", "z", 5, 15, 0.15);
+    const system = Staquia.alphabet();
     const list = new LexicalList<number, MarketItem>(system);
 
     // Your own objects by id, to save them after each operation
@@ -57,7 +57,7 @@ export default class Example extends Component {
         fn set_position(&mut self, position: &Position) { self.position = position.to_string(); }
     }
 
-    let system = Staquia::create('!', 'a', 'z', 5, 15, 0.15)?;
+    let system = Staquia::alphabet();
 
     // The list owns your values: find(&id) gives them back after each operation
     let mut list: LexicalList<MarketItem> = LexicalList::new(system);

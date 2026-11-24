@@ -68,8 +68,8 @@ export default class GetStarted extends Component {
   ${new CodeBlock("quick-start", "javascript", `
     import Staquia, { LexicalList } from "staquia";
 
-    // The default number system, ready for production
-    const system = Staquia.default();
+    // Plain ASCII positions, ready for production (other presets in the Setup chapter)
+    const system = Staquia.ascii();
     const list = new LexicalList(system);
 
     // Any object with an "id" and a "position" field
@@ -103,8 +103,8 @@ export default class GetStarted extends Component {
     }
 
     fn main() -> Result<(), staquia::Error<u32>> {
-        // The default number system, ready for production
-        let system = Staquia::default();
+        // Plain ASCII positions, ready for production (other presets in the Setup chapter)
+        let system = Staquia::ascii();
         let mut list = LexicalList::new(system);
 
         list.push(Product { id: 1, text: "Milk".into(), position: String::new() })?;

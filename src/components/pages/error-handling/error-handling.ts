@@ -152,7 +152,7 @@ export default class ErrorHandling extends Component {
   ${new CodeBlock("error-instanceof", "javascript", `
     import Staquia, { OverflowError, ThresholdReachedError } from "staquia";
 
-    const system = Staquia.create("!", "a", "z", 5, 15, 0.15);
+    const system = Staquia.alphabet();
     const result = system.core(previous, next);
 
     if (result.ok) {
@@ -166,7 +166,7 @@ export default class ErrorHandling extends Component {
   `, { rust: `
     use staquia::{PositionError, Staquia};
 
-    let system = Staquia::create('!', 'a', 'z', 5, 15, 0.15)?;
+    let system = Staquia::alphabet();
 
     match system.core(&previous, &next) {
         Ok(position) => save(&position.to_string()),
