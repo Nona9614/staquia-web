@@ -153,7 +153,7 @@ export default class Example extends Component {
     <h3>Spacing the positions again</h3>
     <p>
       After many moves into the same gap the ${new Link("maths", "threshold")} is reached, and the move fails with a
-      ${lang(`<code>"position"</code>`, { rust: "<code>LexicalError::Position</code>" })} error. ${lang("<code>sort</code>", { rust: "<code>rebalance</code>" })} spaces every position again keeping the current order, and returns the
+      ${lang(`<code>"position"</code>`, { rust: "<code>LexicalError::Position</code>" })} error. <code>rebalance</code> spaces every position again keeping the current order, and returns the
       affected items:
     </p>
   </section>
@@ -162,9 +162,9 @@ export default class Example extends Component {
       let moved = list.move(id, previousId, nextId);
       if (!moved.ok && moved.error.type === "position") {
         // Keep the current order and space the positions again
-        const sorted = list.sort((a, b) => (a.position.less(b.position) ? -1 : 1));
-        if (sorted.ok) {
-          const [affected] = sorted.value;
+        const rebalanced = list.rebalance();
+        if (rebalanced.ok) {
+          const [affected] = rebalanced.value;
           saveAll(affected.map((item) => items.get(item.id)));
         }
         moved = list.move(id, previousId, nextId);

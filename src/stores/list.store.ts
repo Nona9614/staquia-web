@@ -66,7 +66,7 @@ export default class ListStore {
     if (first.ok) return { ok: true, affected: [this.#items.get(id)!], rebalanced: false };
     if (first.error.type !== "position") return first;
 
-    const rebalanced = this.#list.sort((a, b) => (a.position.less(b.position) ? -1 : 1));
+    const rebalanced = this.#list.rebalance();
     if (!rebalanced.ok) return rebalanced;
     const second = this.#list.move(id, previousId, nextId);
     if (!second.ok) return second;

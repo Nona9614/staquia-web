@@ -113,13 +113,14 @@ export default class Database extends Component {
     <h3>Rebalancing</h3>
     <p>
       When many moves land in the same gap, a move fails with a ${lang(`<code>"position"</code>`, { rust: "<code>LexicalError::Position</code>" })} error (see ${new Link("maths")}). Space the
-      positions again with ${lang("<code>sort</code>", { rust: "<code>rebalance</code>" })} and save the affected rows in <b>one transaction</b>:
+      positions again with <code>rebalance</code> and save the affected rows in <b>one transaction</b>. It is all or nothing: if the
+      system has no room for every item it returns the error and changes nothing, so there is never a half-written order to save:
     </p>
   </section>
   ${new CodeBlock("database-rebalance", "javascript", `
-    const sorted = list.sort((a, b) => (a.position.less(b.position) ? -1 : 1));
-    if (sorted.ok) {
-      const [affected] = sorted.value;
+    const rebalanced = list.rebalance();
+    if (rebalanced.ok) {
+      const [affected] = rebalanced.value;
       await db.transaction(async (tx) => {
         for (const item of affected) {
           await tx.query("UPDATE tasks SET position = $1 WHERE id = $2", [item.position.toString(), item.id]);
