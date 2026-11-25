@@ -24,7 +24,7 @@ export interface Preset {
 export const presets: readonly Readonly<Preset>[] = Object.freeze([
   { name: "default", label: "Default", js: "default", rust: "default", zero: "!", first: "°", last: "ұ", base: 1027, description: "The shortest positions in characters, the best general choice for databases." },
   { name: "ascii", label: "ASCII", js: "ascii", rust: "ascii", zero: "!", first: "#", last: "~", base: 90, set: "!#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_abcdefghijklmnopqrstuvwxyz{|}~", description: "Plain ASCII without ' \\ and `: the most compact per byte, nothing to escape in JSON, SQL or logs." },
-  { name: "urlSafe", label: "URL safe", js: "urlSafe", rust: "url_safe", zero: "-", first: "0", last: "z", base: 64, set: "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz", description: "The URL safe base64 characters in code order: positions go in URLs, file names and HTML ids as they are." },
+  { name: "urlSafe", label: "URL Safe", js: "urlSafe", rust: "url_safe", zero: "-", first: "0", last: "z", base: 64, set: "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz", description: "The URL safe base64 characters in code order: positions go in URLs, file names and HTML ids as they are." },
   { name: "base36", label: "Base 36", js: "base36", rust: "base36", zero: "0", first: "1", last: "z", base: 36, set: "0123456789abcdefghijklmnopqrstuvwxyz", description: "Digits and lowercase letters only: safe with case insensitive collations (MySQL) and alphanumeric keys." },
   { name: "alphabet", label: "Alphabet", js: "alphabet", rust: "alphabet", zero: "!", first: "a", last: "z", base: 27, description: "Readable positions like mmmmm!, the system of every example of this documentation." },
 ]);
