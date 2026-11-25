@@ -2,7 +2,7 @@ import Component from "../../component.ts";
 import CodeBlock from "../../shared/code-block.ts";
 import Link from "../../shared/link.ts";
 import Note from "../../shared/note.ts";
-import { lang } from "../../shared/lang.ts";
+import { lang, only } from "../../shared/lang.ts";
 import StaquiaList from "../../shared/staquia-list.ts";
 
 export default class DragAndDrop extends Component {
@@ -23,8 +23,16 @@ export default class DragAndDrop extends Component {
       <a href="https://sortablejs.github.io/Sortable/">SortableJS</a> moves the element in the page and calls <code>onEnd</code>.
       The neighbors of the moved element are its new previous and next items: pass their ids to
       ${lang("<code>list.move</code>", { rust: "<code>list.move_to</code>" })}${lang("", { rust: " in your server" })}.
+      ${lang("Each item carries its id in a <code>data-id</code> attribute:", { rust: "" })}
     </p>
   </section>
+  ${only("javascript", `${new CodeBlock("drag-and-drop-html", "html", `
+    <ul id="tasks">
+      <li data-id="1">Milk</li>
+      <li data-id="2">Meat</li>
+      <li data-id="3">Bread</li>
+    </ul>
+  `)}`)}
   ${new CodeBlock("drag-and-drop-sortable", "javascript", `
     import Sortable from "sortablejs";
     import Staquia, { LexicalList } from "staquia";
@@ -33,13 +41,30 @@ export default class DragAndDrop extends Component {
     const list = new LexicalList(Staquia.ascii());
     list.set(rows);
 
-    const idOf = (element) => (element ? Number(element.dataset.id) : undefined);
+    const element = document.querySelector("#tasks");
 
-    Sortable.create(document.querySelector("#tasks"), {
+    // Puts the elements back in the order of the list, to undo a drop that can't be saved
+    const restore = () => {
+      const items = list.toArray();
+      if (!items.ok) return;
+      // append moves each element to the end, so they end in the list order (unknown elements stay first)
+      for (const item of items.value) {
+        const child = element.querySelector(\`[data-id="\${item.id}"]\`);
+        if (child) element.append(child);
+      }
+    };
+
+    Sortable.create(element, {
       onEnd({ item }) {
-        const id = idOf(item);
-        const previous = idOf(item.previousElementSibling);
-        const next = idOf(item.nextElementSibling);
+        const before = item.previousElementSibling;
+        const after = item.nextElementSibling;
+
+        const id = Number.parseInt(item.dataset.id);
+        const previous = before ? Number.parseInt(before.dataset.id) : undefined; // undefined at the top
+        const next = after ? Number.parseInt(after.dataset.id) : undefined; // undefined at the bottom
+
+        // An element without a valid data-id cancels the move
+        if (Number.isNaN(id) || Number.isNaN(previous) || Number.isNaN(next)) return restore();
 
         let moved = list.move(id, previous, next);
         if (!moved.ok && moved.error.type === "position") {
@@ -49,6 +74,7 @@ export default class DragAndDrop extends Component {
           moved = list.move(id, previous, next);
         }
         if (moved.ok) save(moved.value); // One row: UPDATE tasks SET position = ... WHERE id = ...
+        else restore(); // SortableJS already moved it on screen: put it back
       },
     });
   `, { rust: `
