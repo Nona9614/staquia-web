@@ -26,7 +26,7 @@ export const languages: Readonly<Record<CodeLanguageName, Readonly<LanguageLinks
   },
   rust: {
     // `rust/Cargo.toml`; docs.rs and crates.io answer once the crate is published
-    version: "0.1.0",
+    version: "0.2.0",
     api: "https://docs.rs/staquia",
     package: "https://crates.io/crates/staquia",
     repository: "https://github.com/Nona9614/staquia-rust",
