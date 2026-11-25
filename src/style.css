@@ -315,11 +315,10 @@ body {
   /* A small minimum gap: on tall screens the rows still stretch, on short ones they fit before scrolling */
   gap: 0.25rem;
   /*
-   * When the links don't fit (short windows, phones) a thin scrollbar shows there are more pages below. The same space
-   * is reserved on both sides, so the links stay centered with or without it.
+   * When the links don't fit (short windows, phones) a thin scrollbar shows there are more pages below. The narrow
+   * navigator reserves its space on both sides (see below) so the centered links stay centered.
    */
   scrollbar-width: thin;
-  scrollbar-gutter: stable both-edges;
 }
 
 .nav__item {
@@ -361,6 +360,15 @@ body {
     display: none;
   }
 
+  /* The full title stays on one line next to its icon; a title too long for the navigator ends with "…" */
+  .nav__item__text--full,
+  .nav__item__text:only-child {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &:hover,
   &:focus-visible {
     background-color: var(--color-nav-pill-hover);
@@ -375,6 +383,11 @@ body {
 
 /* Narrow navigator: icon over a one-word label, with room on both sides */
 @container nav (max-width: 120px) {
+  /* The scrollbar space on both sides, so the centered icons stay centered with or without it */
+  .nav__list {
+    scrollbar-gutter: stable both-edges;
+  }
+
   .nav__item {
     padding: 0 0.25rem;
   }
