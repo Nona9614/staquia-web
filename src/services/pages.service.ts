@@ -34,19 +34,52 @@ export function isPage(value: string): value is Page {
   return (pages as readonly string[]).includes(value);
 }
 
+/** What a URL hash holds: the page and, when it names one, the code language. */
+export interface HashState {
+  page: Page;
+  /** The `lang` value as written, `undefined` when the hash has none. */
+  lang?: string;
+}
+
+/**
+ * Reads a URL hash: `#view=setup&lang=rust` (any order, read with `URLSearchParams`), or the old `#setup` form
+ * without `=`, which links written before still use. The first page when the page is empty or unknown.
+ *
+ * @param hash - The URL hash, with or without the leading `#`.
+ */
+export function parseHash(hash: string): HashState {
+  const value = hash.startsWith("#") ? hash.slice(1) : hash;
+  if (!value.includes("=")) {
+    let page = value;
+    try {
+      page = decodeURIComponent(value);
+    } catch {
+      // A malformed escape sequence is just an unknown page
+    }
+    return { page: isPage(page) ? page : pages[0] };
+  }
+  const params = new URLSearchParams(value);
+  const page = params.get("view") ?? "";
+  return { page: isPage(page) ? page : pages[0], lang: params.get("lang") ?? undefined };
+}
+
 /**
  * Gets the page a URL hash points to, the first page when the hash is empty or unknown.
  *
  * @param hash - The URL hash, with or without the leading `#`.
  */
 export function pageFromHash(hash: string): Page {
-  let value = hash.startsWith("#") ? hash.slice(1) : hash;
-  try {
-    value = decodeURIComponent(value);
-  } catch {
-    // A malformed escape sequence is just an unknown page
-  }
-  return isPage(value) ? value : pages[0];
+  return parseHash(hash).page;
+}
+
+/**
+ * Writes the hash of a page in a code language: `#view=<page>&lang=<lang>`, or `#view=<page>` without one.
+ *
+ * @param page - The page.
+ * @param lang - The code language, if the link must open in one.
+ */
+export function hashFor(page: Page, lang?: string): string {
+  return lang ? `#view=${page}&lang=${lang}` : `#view=${page}`;
 }
 
 /**

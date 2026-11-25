@@ -4,6 +4,6 @@ import Component from "../component.ts";
 export default class DocsButton extends Component {
   render(): string {
     // No whitespace inside the link: a space there would render inside the button, not between it and the next word
-    return `<a class="doc-button" href="#introduction"><span aria-hidden="true">📖</span><span>Docs</span></a>`;
+    return `<a class="doc-button" href="#view=introduction"><span aria-hidden="true">📖</span><span>Docs</span></a>`;
   }
 }

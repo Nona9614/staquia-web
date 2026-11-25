@@ -1,6 +1,6 @@
 import Component from "../component.ts";
 import { defaultViewBox, navigatorIcons } from "./navigator-icons.ts";
-import { shortTitle, title } from "../../services/pages.service.ts";
+import { hashFor, shortTitle, title } from "../../services/pages.service.ts";
 import { pages, type Page } from "../../types/page.ts";
 import { Navigation } from "../../contract.ts";
 
@@ -24,7 +24,7 @@ export default class Navigator extends Component {
     const icon = typeof entry === "string" ? { d: entry, viewBox: defaultViewBox } : entry;
     return `
     <li class="nav__item" title="${title(page)}">
-      <a class="${Navigation.link.name}" href="#${page}" ${Navigation.page.attr(page)}${current}>
+      <a class="${Navigation.link.name}" href="${hashFor(page)}" ${Navigation.page.attr(page)}${current}>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="${icon.viewBox}" aria-hidden="true">
           <path fill="currentcolor" d="${icon.d}"></path>
         </svg>

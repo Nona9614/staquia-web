@@ -1,6 +1,7 @@
 import pagesStore from "../stores/pages.store.ts";
 import { pageChanged } from "../events/app.events.ts";
-import { documentTitle, pageFromHash } from "../services/pages.service.ts";
+import { documentTitle, hashFor, parseHash } from "../services/pages.service.ts";
+import { currentLanguage, isLanguage } from "./language.ts";
 import { Navigation } from "../contract.ts";
 
 /**
@@ -25,8 +26,13 @@ export function hydrateNavigation(): void {
   });
 
   const show = () => {
-    pagesStore.current = pageFromHash(location.hash);
-    pageChanged.trigger(pagesStore.current);
+    const { page, lang } = parseHash(location.hash);
+    pagesStore.current = page;
+    pageChanged.trigger(page);
+    // Links in the site name only the page (and old links like #setup): the address gets the current language
+    // too, so it can be shared. A link with a known language keeps it (the language script applies it); an
+    // unknown one is replaced by the current language.
+    if (location.hash && !isLanguage(lang)) history.replaceState(null, "", hashFor(page, currentLanguage()));
   };
 
   window.addEventListener("hashchange", show);
