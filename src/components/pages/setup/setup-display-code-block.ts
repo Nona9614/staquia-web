@@ -33,7 +33,7 @@ export default class SetupDisplayCodeBlock extends Component {
       // lmax = __lmax__ (overflow above this length)
       // lϰ = __lϰ__ (threshold at this length)
       // hmax = __hmax__ (halvings per digit)
-      // __gap-min__ to __gap-max__ moves fit into the same gap`;
+      // __gap__ moves fit into the same gap`;
     const presetCode = new CodeBlock(
       "setup-display-preset",
       "javascript",

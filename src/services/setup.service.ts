@@ -134,6 +134,8 @@ export function bindings(values: Readonly<SetupValues>): Record<string, string |
     hmax,
     "gap-min": gap.min,
     "gap-max": gap.max,
+    // "55 to 66", or one number when both are equal (a base that is a power of 2)
+    gap: gap.min === gap.max ? String(gap.min) : `${gap.min} to ${gap.max}`,
     // The Rust sample: char literals and an f64 literal
     rust_zero: rustChar(values.zero),
     rust_first: rustChar(values.first),
