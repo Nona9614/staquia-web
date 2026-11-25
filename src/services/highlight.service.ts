@@ -1,5 +1,5 @@
 /** The languages the code samples are written in. */
-export type Language = "javascript" | "typescript" | "rust" | "html" | "bash" | "sql";
+export type Language = "javascript" | "typescript" | "rust" | "html" | "bash" | "sql" | "prisma";
 
 const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const span = (kind: string, text: string) => `<span class="${kind}">${escapeHtml(text)}</span>`;
@@ -194,6 +194,22 @@ function markup(code: string): string {
   return out;
 }
 
+/** Prisma schema: comments, strings, blocks (`model`), attributes (`@id`, `@@map`), field types and their functions. */
+function prisma(code: string): string {
+  const token = /(\/\/[^\n]*)|("[^"]*")|(@@?[\w.]+)|\b(model|enum|datasource|generator)\b|\b(Int|BigInt|String|Boolean|DateTime|Float|Decimal|Json|Bytes)\b|(\w+)(?=\()|([^])/g;
+  let out = "";
+  for (const [text, comment, string, attribute, block, type, call] of code.matchAll(token)) {
+    if (comment) out += span("comment", text);
+    else if (string) out += span("string", text);
+    else if (attribute) out += span("control", text);
+    else if (block) out += span("keyword", text);
+    else if (type) out += span("type", text);
+    else if (call) out += span("function", text);
+    else out += escapeHtml(text);
+  }
+  return out;
+}
+
 /** SQL: comments, strings and uppercase keywords. */
 function sql(code: string): string {
   const token = /(--[^\n]*)|("[^"]*"|'[^']*')|(\b[A-Z][A-Z_]+\b)|([^])/g;
@@ -228,6 +244,8 @@ export function highlight(code: string, language: Language): string {
       return html(code);
     case "sql":
       return sql(code);
+    case "prisma":
+      return prisma(code);
   }
 }
 

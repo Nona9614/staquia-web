@@ -761,7 +761,8 @@ article {
 .code-block__typescript,
 .code-block__javascript,
 .code-block__rust,
-.code-block__html {
+.code-block__html,
+.code-block__prisma {
   .control {
     color: var(--color-code-control);
   }

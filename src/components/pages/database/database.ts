@@ -2,7 +2,7 @@ import Component from "../../component.ts";
 import CodeBlock from "../../shared/code-block.ts";
 import Link from "../../shared/link.ts";
 import Note from "../../shared/note.ts";
-import { lang } from "../../shared/lang.ts";
+import { lang, only } from "../../shared/lang.ts";
 
 export default class Database extends Component {
   render(): string {
@@ -79,31 +79,105 @@ export default class Database extends Component {
     </p>
     <h3>With an ORM</h3>
     <p>
-      Declare the position as a plain string of at most <code>20</code> characters, and write the binary collation and the
-      <code>DEFERRABLE</code> unique constraint of the table above in a SQL migration: most ORMs can't describe them in their schema.
+      Declare the position as a plain string of at most <code>20</code> characters. Most ORMs can't describe the binary collation
+      or a <code>DEFERRABLE</code> unique constraint in their schema, so those two go in a SQL migration:
     </p>
-    <ul>
-      <li>
-        <b><a href="https://www.prisma.io/docs/orm/prisma-migrate">Prisma</a>:</b> <code>position String @db.VarChar(20)</code>, then
-        create the migration with <code>prisma migrate dev --create-only</code> and add the collation and the constraint to its SQL
-        before applying it.
-      </li>
-      <li>
-        <b><a href="https://orm.drizzle.team/docs/kit-custom-migrations">Drizzle</a>:</b>
-        <code>position: varchar("position", { length: 20 }).notNull()</code>, and the collation and the constraint in a custom
-        migration made with <code>drizzle-kit generate --custom</code>.
-      </li>
-      <li>
-        <b><a href="https://github.com/launchbadge/sqlx">SQLx</a> (Rust):</b> its migrations are plain SQL, so the table above is the
-        migration (<code>sqlx migrate add tasks</code>), and the position is a <code>String</code> in your queries.
-      </li>
-    </ul>
   </section>
   ${new CodeBlock("database-orm", "sql", `
     -- The part of the migration the ORM can't write (PostgreSQL)
     ALTER TABLE tasks ALTER COLUMN position TYPE varchar(20) COLLATE "POSIX";
     ALTER TABLE tasks ADD CONSTRAINT tasks_position UNIQUE (list_id, position) DEFERRABLE INITIALLY DEFERRED;
   `)}
+  ${only("javascript", `
+  <section class="text-block">
+    <h4><a href="https://www.prisma.io/docs/orm/prisma-migrate">Prisma</a></h4>
+    <p>
+      The schema declares the column; create the migration with <code>prisma migrate dev --create-only</code>, add the two lines
+      above to its SQL, then apply it with <code>prisma migrate dev</code>.
+    </p>
+  </section>
+  ${new CodeBlock("database-prisma-schema", "prisma", `
+    model Task {
+      id       Int    @id @default(autoincrement())
+      listId   Int    @map("list_id")
+      title    String
+      // The collation and the unique constraint are added in the migration SQL
+      position String @db.VarChar(20)
+
+      @@map("tasks")
+    }
+  `)}
+  ${new CodeBlock("database-prisma-queries", "javascript", `
+    // Read the list in its order and load it
+    const rows = await prisma.task.findMany({ where: { listId }, orderBy: { position: "asc" } });
+    list.set(rows);
+
+    // After a move, save the only row that changed
+    const moved = list.move(id, previousId, nextId);
+    if (moved.ok) {
+      await prisma.task.update({ where: { id }, data: { position: moved.value.position.toString() } });
+    }
+  `)}
+  <section class="text-block">
+    <h4><a href="https://orm.drizzle.team/docs/kit-custom-migrations">Drizzle</a></h4>
+    <p>
+      The table in TypeScript; the two lines above go in a custom migration made with
+      <code>drizzle-kit generate --custom</code>.
+    </p>
+  </section>
+  ${new CodeBlock("database-drizzle", "typescript", `
+    import { asc, eq } from "drizzle-orm";
+    import { integer, pgTable, serial, text, varchar } from "drizzle-orm/pg-core";
+
+    export const tasks = pgTable("tasks", {
+      id: serial("id").primaryKey(),
+      listId: integer("list_id").notNull(),
+      title: text("title").notNull(),
+      position: varchar("position", { length: 20 }).notNull(),
+    });
+
+    // Read the list in its order and load it
+    const rows = await db.select().from(tasks).where(eq(tasks.listId, listId)).orderBy(asc(tasks.position));
+    list.set(rows);
+
+    // After a move, save the only row that changed
+    const moved = list.move(id, previousId, nextId);
+    if (moved.ok) {
+      await db.update(tasks).set({ position: moved.value.position.toString() }).where(eq(tasks.id, id));
+    }
+  `)}`)}
+  ${only("rust", `
+  <section class="text-block">
+    <h4><a href="https://github.com/launchbadge/sqlx">SQLx</a></h4>
+    <p>
+      Its migrations are plain SQL, so the table above is the migration (<code>sqlx migrate add tasks</code>), and the position
+      is a <code>String</code> field of your row type.
+    </p>
+  </section>
+  ${new CodeBlock("database-sqlx", "rust", `
+    #[derive(sqlx::FromRow)]
+    struct Task {
+        id: i32,
+        list_id: i32,
+        title: String,
+        position: String,
+    }
+
+    // Read the list in its order and load it
+    let rows: Vec<Task> = sqlx::query_as("SELECT id, list_id, title, position FROM tasks WHERE list_id = $1 ORDER BY position")
+        .bind(list_id)
+        .fetch_all(&pool)
+        .await?;
+    list.set(rows)?;
+
+    // After a move, save the only row that changed
+    let moved = list.move_to(&id, previous.as_ref(), next.as_ref())?;
+    sqlx::query("UPDATE tasks SET position = $1 WHERE id = $2")
+        .bind(&moved.value().position)
+        .bind(id)
+        .execute(&pool)
+        .await?;
+  `)}`)}
   <section class="text-block">
     <h3>Migrating an existing list</h3>
     <p>
