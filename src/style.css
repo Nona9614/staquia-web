@@ -315,14 +315,11 @@ body {
   /* A small minimum gap: on tall screens the rows still stretch, on short ones they fit before scrolling */
   gap: 0.25rem;
   /*
-   * When it must scroll (small phones), the scrollbar is hidden but scrolling keeps working:
-   * a scrollbar takes space from the right side only and would unbalance the links.
+   * When the links don't fit (short windows, phones) a thin scrollbar shows there are more pages below. The same space
+   * is reserved on both sides, so the links stay centered with or without it.
    */
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  scrollbar-width: thin;
+  scrollbar-gutter: stable both-edges;
 }
 
 .nav__item {
